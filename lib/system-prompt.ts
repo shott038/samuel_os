@@ -177,6 +177,20 @@ function serializeSection(section: ArchiveSection): string {
       parts.push(`location=${section.location}`);
       return `[contact] ${parts.join(" | ")}`;
     }
+
+    case "image": {
+      const bits = [section.alt];
+      if (section.caption) bits.push(section.caption);
+      return `[image] ${bits.join(" — ")}`;
+    }
+
+    case "image_gallery": {
+      const heading = section.heading ? `[gallery: ${section.heading}]` : "[gallery]";
+      const items = section.images
+        .map((img) => (img.caption ? `${img.alt} (${img.caption})` : img.alt))
+        .join(" | ");
+      return `${heading} ${items}`;
+    }
   }
 }
 

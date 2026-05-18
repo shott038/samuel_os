@@ -1,26 +1,366 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --brand-bg-deep: #060C0E;
+  --brand-bg: #0B1416;
+  --brand-bg-elev: #132022;
+
+  --brand-signal: #3DD4C8;
+  --brand-signal-active: #20E8DC;
+
+  --brand-info: #C89020;
+  --brand-info-muted: #886020;
+
+  --brand-text-muted: #4A7878;
+  --brand-border: #1C3A3C;
+
+  --brand-warn: #E07828;
+  --brand-crit: #E04030;
+
+  --brand-text: #C4D8D8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg-deep: var(--brand-bg-deep);
+  --color-bg: var(--brand-bg);
+  --color-bg-elev: var(--brand-bg-elev);
+  --color-signal: var(--brand-signal);
+  --color-signal-active: var(--brand-signal-active);
+  --color-info: var(--brand-info);
+  --color-info-muted: var(--brand-info-muted);
+  --color-muted: var(--brand-text-muted);
+  --color-border: var(--brand-border);
+  --color-warn: var(--brand-warn);
+  --color-crit: var(--brand-crit);
+  --color-text: var(--brand-text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  background-color: var(--brand-bg);
+  color: var(--brand-text);
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3  0 0 0 0 0.85  0 0 0 0 0.82  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+  opacity: 0.025;
+  mix-blend-mode: overlay;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(
+    ellipse 85% 75% at 50% 50%,
+    transparent 30%,
+    rgba(2, 8, 10, 0.55) 100%
+  );
+}
+
+.terminal-glow {
+  box-shadow:
+    0 0 0 1px rgba(61, 212, 200, 0.18),
+    0 0 30px rgba(61, 212, 200, 0.07),
+    inset 0 0 60px rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  /* Intentional UI animations — keep alive regardless of system preference */
+  .hologram-idle,
+  .anim-sig-weak,
+  .anim-reconnect,
+  .anim-scan::after {
+    animation-duration: var(--anim-dur) !important;
+    animation-iteration-count: infinite !important;
+  }
+  .hologram-idle   { --anim-dur: 4s; }
+  .anim-sig-weak   { --anim-dur: 3.5s; }
+  .anim-reconnect  { --anim-dur: 0.9s; }
+  .anim-scan::after { --anim-dur: 4s; }
+}
+
+.scroll-system {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-border) transparent;
+}
+.scroll-system::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-system::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-system::-webkit-scrollbar-thumb {
+  background: var(--brand-border);
+  border-radius: 3px;
+}
+
+@keyframes ri-flicker {
+  0%,
+  100% { opacity: 1; }
+  47%  { opacity: 0.92; }
+  53%  { opacity: 1; }
+  71%  { opacity: 0.95; }
+}
+
+@keyframes hologram-pulse {
+  0%, 100% { opacity: 0.50; filter: brightness(1); }
+  30%       { opacity: 0.38; filter: brightness(0.85); }
+  60%       { opacity: 0.55; filter: brightness(1.1); }
+  80%       { opacity: 0.42; filter: brightness(0.90); }
+}
+
+.hologram-idle {
+  animation: hologram-pulse 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flicker-on-hover:hover {
+    animation: ri-flicker 1.4s steps(20, end) infinite;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.viewer-scanline {
+  position: relative;
+}
+.viewer-scanline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 37%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(61, 212, 200, 0.15) 25%,
+    rgba(61, 212, 200, 0.15) 75%,
+    transparent 100%
+  );
+  opacity: 0.35;
+  z-index: 0;
+}
+
+/* ════════════════════════════════════════════
+   SIGNAL ANIMATION SYSTEM
+   ════════════════════════════════════════════ */
+
+/* ── Glitch: one-shot burst (JS-toggled class) ── */
+@keyframes glitch-hard {
+  0%   { transform: translate(0); filter: none; }
+  8%   { transform: translate(-4px, 1px); filter: hue-rotate(90deg) brightness(1.6); }
+  9%   { transform: translate(4px, -2px); filter: hue-rotate(-90deg) brightness(0.8); }
+  10%  { transform: translate(-2px, 1px); filter: hue-rotate(45deg); }
+  11%  { transform: translate(0); filter: none; }
+  82%  { transform: translate(0); filter: none; }
+  86%  { transform: translate(3px, 0); filter: brightness(2) saturate(0.2); }
+  88%  { transform: translate(-3px, -1px); filter: hue-rotate(180deg); }
+  90%  { transform: translate(2px, 1px); filter: brightness(1.4); }
+  92%  { transform: translate(-1px, 0); }
+  94%  { transform: translate(0); filter: none; }
+}
+.anim-glitch-hard { animation: glitch-hard 0.45s steps(1, end); }
+
+/* ── Glitch: continuous loop ── */
+@keyframes glitch-loop {
+  0%, 100% { transform: translate(0); filter: none; opacity: 1; }
+  3%   { transform: translate(-3px, 1px); filter: hue-rotate(60deg); opacity: 0.88; }
+  6%   { transform: translate(2px, -1px); filter: none; }
+  9%   { transform: translate(0); opacity: 1; }
+  52%  { transform: translate(0); filter: none; }
+  55%  { transform: translate(4px, 0); filter: brightness(1.7) hue-rotate(-45deg); opacity: 0.72; }
+  58%  { transform: translate(-2px, 1px); }
+  61%  { transform: translate(0); filter: none; opacity: 1; }
+}
+.anim-glitch-loop { animation: glitch-loop 2s steps(1, end) infinite; }
+
+/* ── Weak signal: irregular opacity / brightness flutter ── */
+@keyframes sig-weak {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  7%   { opacity: 0.5; filter: brightness(0.55); }
+  8%   { opacity: 1; filter: brightness(1.1); }
+  9%   { opacity: 0.65; filter: brightness(0.7); }
+  10%  { opacity: 1; filter: brightness(1); }
+  38%  { opacity: 1; }
+  40%  { opacity: 0.6; filter: brightness(0.6); }
+  41%  { opacity: 0.95; }
+  42%  { opacity: 0.45; filter: brightness(0.45); }
+  43%  { opacity: 1; filter: brightness(1); }
+  75%  { opacity: 1; }
+  77%  { opacity: 0.55; filter: brightness(0.65); }
+  78%  { opacity: 1; filter: brightness(1.05); }
+}
+.anim-sig-weak { animation: sig-weak 3.5s ease-in-out infinite; }
+
+/* ── Signal lost: severe dropout with position jumps ── */
+@keyframes sig-lost {
+  0%   { opacity: 1; transform: translate(0) scaleY(1); filter: none; }
+  5%   { opacity: 0; transform: translate(-6px, 0) scaleY(0.97); filter: brightness(3) saturate(0); }
+  6%   { opacity: 0.7; transform: translate(6px, 0); }
+  7%   { opacity: 0; }
+  8%   { opacity: 0.8; transform: translate(-3px, 1px) scaleY(1.03); filter: hue-rotate(180deg); }
+  9%   { opacity: 0; transform: translate(0) scaleY(1); filter: none; }
+  10%  { opacity: 0.5; transform: translate(4px); filter: brightness(2); }
+  11%  { opacity: 0; }
+  13%, 100% { opacity: 1; transform: translate(0) scaleY(1); filter: none; }
+}
+.anim-sig-lost { animation: sig-lost 1.4s steps(1, end) infinite; }
+
+/* ── Reconnecting: gentle blink ── */
+@keyframes reconnect {
+  0%, 100% { opacity: 1; }
+  45%  { opacity: 0.2; }
+  55%  { opacity: 0.8; }
+}
+.anim-reconnect { animation: reconnect 0.9s ease-in-out infinite; }
+
+/* ── Scanline sweep: moving line across element ── */
+@keyframes scan-sweep {
+  0%   { top: -20%; opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 0.5; }
+  100% { top: 120%; opacity: 0; }
+}
+.anim-scan {
+  position: relative;
+  overflow: hidden;
+}
+.anim-scan::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 30%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(61, 212, 200, 0.06) 40%,
+    rgba(61, 212, 200, 0.06) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: scan-sweep 4s linear infinite;
+}
+
+/* ── Pixel drift: subtle continuous noise ── */
+@keyframes pixel-drift {
+  0%, 100% { transform: translate(0, 0); }
+  25%  { transform: translate(-1px, 0); }
+  50%  { transform: translate(0, 1px); }
+  75%  { transform: translate(1px, -1px); }
+}
+.anim-drift { animation: pixel-drift 0.35s steps(1, end) infinite; }
+
+/* ── Static noise flash ── */
+@keyframes static-flash {
+  0%, 100% { opacity: 0; }
+  10%  { opacity: 1; }
+  12%  { opacity: 0; }
+  14%  { opacity: 0.6; }
+  16%  { opacity: 0; }
+}
+.anim-static { animation: static-flash 0.4s steps(1, end); }
+
+/* ── RGB text split (for mono text on dark bg) ── */
+@keyframes rgb-split {
+  0%, 100% { text-shadow: none; }
+  20%  { text-shadow: -2px 0 rgba(255, 0, 100, 0.7), 2px 0 rgba(0, 255, 234, 0.7); }
+  40%  { text-shadow: 2px 0 rgba(255, 0, 100, 0.6), -2px 0 rgba(0, 255, 234, 0.6); }
+  60%  { text-shadow: -1px 0 rgba(0, 255, 234, 0.8), 1px 0 rgba(255, 0, 100, 0.5); }
+  80%  { text-shadow: none; }
+}
+.anim-rgb { animation: rgb-split 0.3s steps(1, end); }
+
+/* ════════════════════════════════════════════
+   MILESTONE OVERLAY ANIMATIONS
+   ════════════════════════════════════════════ */
+
+/* ── CRT text flicker for overlay headers ── */
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  5%   { opacity: 0.2; filter: brightness(0.3); }
+  6%   { opacity: 1; filter: brightness(1.8); }
+  7%   { opacity: 0.4; filter: brightness(0.5); }
+  8%   { opacity: 1; filter: brightness(1); }
+  48%  { opacity: 1; }
+  50%  { opacity: 0; filter: brightness(0); }
+  51%  { opacity: 1; filter: brightness(2); }
+  52%  { opacity: 0.6; }
+  53%  { opacity: 1; filter: brightness(1); }
+  89%  { opacity: 1; }
+  91%  { opacity: 0.3; filter: brightness(0.4); }
+  92%  { opacity: 1; filter: brightness(1.6); }
+  93%  { opacity: 1; filter: brightness(1); }
+}
+.anim-crt-flicker { animation: crt-flicker 1.2s steps(1, end) infinite; }
+
+/* ── Text cycling flicker for subtext ── */
+@keyframes subtext-flicker {
+  0%, 45%  { opacity: 1; }
+  46%      { opacity: 0; }
+  47%      { opacity: 0.6; }
+  48%      { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+.anim-subtext-flicker { animation: subtext-flicker 2.4s steps(1, end) infinite; }
+
+/* ── Screen tear / horizontal strip glitch ── */
+@keyframes screen-tear {
+  0%, 100% { clip-path: inset(0 0 100% 0); opacity: 0; transform: translateX(0); }
+  10%  { clip-path: inset(20% 0 60% 0); opacity: 1; transform: translateX(-6px); }
+  11%  { clip-path: inset(20% 0 60% 0); opacity: 1; transform: translateX(4px); }
+  12%  { clip-path: inset(0 0 100% 0); opacity: 0; }
+  40%  { clip-path: inset(0 0 100% 0); opacity: 0; }
+  42%  { clip-path: inset(55% 0 30% 0); opacity: 1; transform: translateX(8px); }
+  43%  { clip-path: inset(55% 0 30% 0); opacity: 1; transform: translateX(-4px); }
+  44%  { clip-path: inset(0 0 100% 0); opacity: 0; }
+  70%  { clip-path: inset(0 0 100% 0); opacity: 0; }
+  72%  { clip-path: inset(10% 0 75% 0); opacity: 1; transform: translateX(5px); }
+  73%  { clip-path: inset(10% 0 75% 0); transform: translateX(-3px); }
+  74%  { clip-path: inset(0 0 100% 0); opacity: 0; }
+}
+.anim-screen-tear { animation: screen-tear 1.8s steps(1, end) infinite; }
+
+/* ── Countdown blink for SYSTEM_OVERLOAD ── */
+@keyframes countdown-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
+}
+.anim-countdown { animation: countdown-blink 0.5s steps(1, end) infinite; }
+
+/* ── Corrupt scanlines overlay for milestone backdrops ── */
+@keyframes corrupt-scan {
+  0%   { background-position: 0 0; opacity: 0.15; }
+  25%  { background-position: 0 -8px; opacity: 0.25; }
+  50%  { background-position: 0 4px; opacity: 0.12; }
+  75%  { background-position: 0 -4px; opacity: 0.20; }
+  100% { background-position: 0 0; opacity: 0.15; }
+}
+.anim-corrupt-scan {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(224, 64, 48, 0.08) 2px,
+    rgba(224, 64, 48, 0.08) 4px
+  );
+  animation: corrupt-scan 0.3s steps(1, end) infinite;
 }

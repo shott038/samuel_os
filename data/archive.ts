@@ -145,7 +145,7 @@ const FILES: readonly ArchiveFile[] = [
       {
         kind: "text",
         body:
-          "I'm most effective partnered with strong builders and strong distribution people. My contribution is figuring out what to build and why, setting direction, and clearing the path so the team can do their best work.",
+          "I'm most effective partnered with strong builders and strong distribution people. My contribution is figuring out what to build and why, setting direction, and keeping things moving.",
       },
       {
         kind: "list",
@@ -183,6 +183,11 @@ const FILES: readonly ArchiveFile[] = [
     folder: "builds",
     sections: [
       {
+        kind: "text",
+        body:
+          "I keep a running list of ideas — currently sitting at over 170 distinct concepts for things that don't exist yet but should. Some are software. Some are physical products. Some are much bigger. I go through them and ask what I can actually execute on right now, weighting heavily toward things with a low barrier to start. That's why I'm spending most of my time in software, apps, and agents — it's cheap to build, fast to iterate, and I can do it without a co-founder or a factory. The builds below are me working down the list.",
+      },
+      {
         kind: "project",
         title: "SideQuestr",
         subtitle: "iOS app — March 2026–present",
@@ -191,14 +196,28 @@ const FILES: readonly ArchiveFile[] = [
         tags: ["Swift", "SwiftUI", "Supabase", "Mapbox", "Claude Code", "iOS"],
       },
       {
-        kind: "image_gallery",
-        heading: "SideQuestr — live screens",
-        columns: 3,
-        images: [
-          { src: "/photos/build-sidequestr-map.webp", alt: "SideQuestr map view with spots", filename: "sidequestr_map.png", caption: "Map view", aspect: "portrait" },
-          { src: "/photos/build-sidequestr-friends.webp", alt: "SideQuestr crew & friend activity", filename: "sidequestr_crew.png", caption: "Crew", aspect: "portrait" },
-          { src: "/photos/build-sidequestr-icon.webp", alt: "SideQuestr app icon", filename: "sidequestr_icon.png", caption: "Icon", aspect: "square" },
-        ],
+        kind: "project",
+        title: "TortBot",
+        subtitle: "AI agent — 2025–present",
+        body:
+          "An AI agent that builds LLM-citable online presence for small law firms. It scouts the news daily, pitches relevant stories to the attorney for approval, then writes and publishes long-form articles plus social teasers — optimized for Answer Engine Optimization. The goal: when someone asks an AI assistant for a local lawyer recommendation, TortBot's clients surface in the answer.",
+        tags: ["AI Agents", "AEO", "Content Automation", "Python"],
+      },
+      {
+        kind: "project",
+        title: "Saulene",
+        subtitle: "Open-source Claude Code plugin — 2025–present",
+        body:
+          "A Claude Code plugin that gives AI agents a slowly-evolving personality. A deterministic engine simulates how an agent's character develops over time — updating through interactions, environment, and time. Built as a monorepo with modules for simulation, expression rendering, perception, and persistent storage. Open-source.",
+        tags: ["Claude Code", "AI Agents", "TypeScript", "Open Source"],
+      },
+      {
+        kind: "project",
+        title: "Auto Attend",
+        subtitle: "Mobile app — 2025–present",
+        body:
+          "A mobile app that automatically marks college students present by detecting physical classroom presence — GPS geofence plus Bluetooth beacon proximity, with a one-tap manual fallback. Anti-cheat stack prevents spoofing. Built to sell to institutions, so the product doubles as a sales-evidence factory: real usage data in every pitch.",
+        tags: ["iOS", "Android", "GPS", "Bluetooth", "EdTech"],
       },
       {
         kind: "project",
@@ -232,6 +251,16 @@ const FILES: readonly ArchiveFile[] = [
           "A reusable multi-agent orchestrator for building apps and websites. Clone once per project: an orchestrator routes work to specialist agents (frontend, backend, maps, security, QA, product), each with its own playbook and hard context budget. Powers SideQuestr's 7-agent team and is the template I drop into every new build.",
         tags: ["Claude Code", "Multi-Agent", "Orchestration", "AI Agents"],
       },
+      {
+        kind: "image_gallery",
+        heading: "SideQuestr — live screens",
+        columns: 3,
+        images: [
+          { src: "/photos/build-sidequestr-map.webp", alt: "SideQuestr map view with spots", filename: "sidequestr_map.png", caption: "Map view", aspect: "portrait" },
+          { src: "/photos/build-sidequestr-friends.webp", alt: "SideQuestr crew & friend activity", filename: "sidequestr_crew.png", caption: "Crew", aspect: "portrait" },
+          { src: "/photos/build-sidequestr-icon.webp", alt: "SideQuestr app icon", filename: "sidequestr_icon.png", caption: "Icon", aspect: "square" },
+        ],
+      },
     ],
     suggestedPrompts: [
       "Walk me through Samuel's most interesting build.",
@@ -249,17 +278,26 @@ const FILES: readonly ArchiveFile[] = [
       {
         kind: "text",
         body:
-          "I'm proficient with AI agents and I use them in everything I do. They're not a side tool for me — they're the default way I work. I treat agents and LLMs the way an earlier generation of operators treated spreadsheets or the internet: a foundational layer that makes the human running them dramatically faster and more capable.",
+          "Agents aren't a side tool for me — they're the default way I work. I treat them the way an earlier generation of operators treated spreadsheets or the internet: a foundational layer that makes the human running them dramatically faster and more capable. My judgment, taste, and direction stay mine. The agents do the heavy lifting underneath.",
       },
       {
         kind: "text",
         body:
-          "Agents enhance my skills, they don't replace them. My judgment, taste, and direction stay mine — the agents do the heavy lifting underneath. The result is that I ship more, ship faster, and ship at a higher quality bar than I ever could on my own.",
+          "I run features in parallel across isolated git worktrees — each with its own Claude session and a bounded MISSION.md that defines exactly what that agent is allowed to touch. While one session is wiring up a backend service, another is building the frontend for a different feature entirely. Context doesn't bleed between them because scope is enforced at the branch level. This is how I ship fast without things breaking each other.",
       },
       {
         kind: "text",
         body:
-          "I stay up to date. I read the agent news daily — model releases, new frameworks, evals, how other builders are wiring their systems. The field moves weekly and I move with it. Anyone working with me gets the benefit of that constant currency.",
+          "Context discipline is where most people lose productivity with agents. I keep agents scoped tight — hard-capped playbooks, warm-cached shared conventions, task classification that tells the orchestrator what it's looking at before it spawns anything. A quick one-file fix runs differently than a feature that touches schema, service, and UI. The right agent, at the right scope, with the right context — that's the whole game.",
+      },
+      {
+        kind: "text",
+        body:
+          "Scope creep is the silent killer of agent sessions. I've built patterns that prevent it: typed signals between agents so they never drift outside their role, a routing layer that checks known failure patterns before spawning anything new, and a distillation loop where agents self-update their own playbooks from what they got wrong. The system gets smarter over time without me having to manually tune it.",
+      },
+      {
+        kind: "text",
+        body: "To give a sense of output — here's SideQuestr's numbers after 32 days of agent-assisted development:",
       },
       {
         kind: "stat_row",
@@ -278,23 +316,25 @@ const FILES: readonly ArchiveFile[] = [
         kind: "list",
         heading: "How I actually use agents day-to-day",
         items: [
-          "Multi-agent teams for shipping product — specialist agents (frontend, backend, QA, security) routed by an orchestrator",
-          "Parallel execution — fan out independent work so multiple things ship at once",
-          "Agents in the research loop — drafting theses, summarizing news, sanity-checking ideas before I commit",
-          "Agents in the writing loop — outlining, drafting, and editing in my own voice",
+          "Worktree orchestration — spawn features into isolated branches, each with its own dedicated Claude session running in parallel",
+          "Multi-agent product teams — an orchestrator routes work to 6 specialist agents (frontend, backend, maps, security, QA, product), each with their own playbook and hard context budget",
+          "Parallel execution — independent work fans out simultaneously so multiple things ship at once without blocking each other",
+          "Scope enforcement — MISSION.md charters, typed cross-agent signals, and task classification keep agents inside their lane",
+          "Self-improving systems — background distiller agents mine session logs and update playbooks automatically; weekly evals catch regressions before they harden",
+          "Agents in the research loop — drafting theses, summarizing news, sanity-checking ideas before I commit to them",
           "Agents in the ops loop — automating recurring chores so I spend time on what only I can do",
-          "Constant evaluation — testing new models and tools as they ship, swapping in what's better",
+          "Constant evaluation — reading model releases, new frameworks, and evals daily; swapping in whatever's better as soon as it ships",
         ],
       },
       {
         kind: "text",
         body:
-          "The bet I'm making with my career: the operators who win the next decade are the ones who learned to run agent teams early and well. I started early. I'm getting better at it every week.",
+          "The bet I'm making: the operators who win the next decade learned to run agent teams early and well — not just how to prompt, but how to architect, scope, and manage them at scale. I started early. I'm getting better at it every week.",
       },
     ],
     suggestedPrompts: [
       "How does Samuel use AI agents in his work?",
-      "Why does he think agents are the future?",
+      "How does he manage multiple agents without things breaking?",
       "What does his day-to-day with agents actually look like?",
     ],
   },
@@ -453,7 +493,7 @@ const FILES: readonly ArchiveFile[] = [
           { src: "/photos/baseball-rays-jersey.webp", alt: "Samuel in Rays jersey on the field", filename: "rays_jersey.png", caption: "Little league — Rays jersey", aspect: "portrait" },
           { src: "/photos/baseball-cage-young.webp", alt: "Samuel in the batting cage, younger", filename: "cage_age_12.png", caption: "Cage work, early years", aspect: "portrait" },
           { src: "/photos/baseball-cage-teen.webp", alt: "Samuel in the batting cage, teen years", filename: "cage_teen.png", caption: "Cage work, high school", aspect: "landscape" },
-          { src: "/photos/baseball-pitching.webp", alt: "Samuel on deck during a night game", filename: "night_on_deck.png", caption: "Night game on deck", aspect: "landscape" },
+          { src: "/photos/baseball-pitching.webp", alt: "Samuel on deck during a night game", filename: "night_on_deck.png", caption: "Night game on deck", aspect: "portrait" },
         ],
       },
     ],
@@ -534,7 +574,7 @@ const FILES: readonly ArchiveFile[] = [
         images: [
           { src: "/photos/hobby-fpv-drone.webp", alt: "FPV drone with goggles, controller, and battery", filename: "fpv_rig.png", caption: "FPV rig — drone, goggles, transmitter", aspect: "square" },
           { src: "/photos/hobby-fishing-bass.webp", alt: "Samuel holding a largemouth bass on the boat", filename: "everglades_bass.png", caption: "Fly rod, largemouth, Florida", aspect: "portrait" },
-          { src: "/photos/hobby-pilot.webp", alt: "Samuel in pilot's uniform at the terminal", filename: "pilot_terminal.png", caption: "Aviation — student pilot", aspect: "landscape" },
+          { src: "/photos/hobby-pilot.webp", alt: "Samuel in pilot's uniform at the terminal", filename: "pilot_terminal.png", caption: "Aviation — student pilot", aspect: "portrait" },
           { src: "/photos/hobby-minecraft.webp", alt: "Custom enchanted armor character in Minecraft", filename: "minecraft.png", caption: "Minecraft — still undefeated at building castles", aspect: "landscape" },
         ],
       },

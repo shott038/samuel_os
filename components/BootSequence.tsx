@@ -107,10 +107,14 @@ export default function BootSequence() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (state.phase === "init" || state.phase === "done") return null;
+  // `init` still renders the overlay: it is server-rendered so the boot screen
+  // is the first paint, before hydration. Repeat visits are hidden pre-paint
+  // by the inline script in layout.tsx via html[data-boot-seen].
+  if (state.phase === "done") return null;
 
   return (
     <div
+      id="boot-overlay"
       role="status"
       aria-live="polite"
       className={cn(
@@ -131,7 +135,7 @@ export default function BootSequence() {
             <div
               key={line}
               className={cn(
-                "font-mono text-sm text-signal sm:text-base",
+                "font-mono text-lg text-signal sm:text-2xl",
                 "transition-opacity duration-300",
                 isVisible ? "opacity-100" : "opacity-0",
               )}

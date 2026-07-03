@@ -28,8 +28,19 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full bg-bg text-text font-sans">
+        {/* Runs before the rest of <body> is parsed: hides the boot overlay
+            pre-paint on repeat visits so returning visitors get no flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem("ri_boot_seen")==="1")document.documentElement.setAttribute("data-boot-seen","")}catch(e){}`,
+          }}
+        />
+        <noscript>
+          <style>{`#boot-overlay{display:none}`}</style>
+        </noscript>
         <ArchiveProvider>
           <BootSequence />
           {children}

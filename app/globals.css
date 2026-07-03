@@ -20,6 +20,12 @@
   --brand-text: #C4D8D8;
 }
 
+/* Boot overlay: hidden pre-paint on repeat visits (attribute set by the
+   inline script at the top of <body> in layout.tsx). */
+html[data-boot-seen] #boot-overlay {
+  display: none;
+}
+
 @theme inline {
   --color-bg-deep: var(--brand-bg-deep);
   --color-bg: var(--brand-bg);

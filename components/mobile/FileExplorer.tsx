@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Lock } from "lucide-react";
 import { useArchive } from "@/lib/archive-context";
 import { cn } from "@/lib/utils";
@@ -54,48 +54,84 @@ export default function FileExplorer() {
     [filesByFolder, openFile],
   );
 
+  // One-time nudge: scroll the strip out and back after load so it's obvious
+  // the shards slide. Skipped for reduced-motion users.
+  const stripRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = stripRef.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const out = setTimeout(() => el.scrollTo({ left: 48, behavior: "smooth" }), 900);
+    const back = setTimeout(() => el.scrollTo({ left: 0, behavior: "smooth" }), 1600);
+    return () => {
+      clearTimeout(out);
+      clearTimeout(back);
+    };
+  }, []);
+
   return (
     <nav aria-label="Archive" className="px-4 pb-4 pt-3.5">
-      <StripHeader />
-      <div className="scroll-strip -mx-4 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-1">
-        {archive.folders.map((folder) => {
-          const fileCount = filesByFolder[folder.slug]?.length ?? 0;
-          const isActive = folder.slug === activeFolderSlug;
-          if (folder.slug === "contact_info") {
-            return <ContactShard key={folder.slug} onOpen={openContact} />;
-          }
-          return (
-            <button
-              key={folder.slug}
-              type="button"
-              onClick={() => openFolder(folder.slug)}
-              className={cn(
-                "clip-shard relative min-w-[11.5rem] shrink-0 snap-start border bg-panel p-3 text-left transition-colors",
-                isActive
-                  ? "border-info/50"
-                  : "border-border active:border-border-hi",
-              )}
-              style={isActive ? { background: "rgba(38,28,10,0.35)" } : undefined}
-            >
-              <ShardCardBody folder={folder} fileCount={fileCount} isActive={isActive} />
-            </button>
-          );
-        })}
+      <StripHeader folderCount={archive.folders.length} />
+      <div className="relative -mx-4">
+        <div ref={stripRef} className="scroll-strip flex snap-x snap-proximity gap-2.5 overflow-x-auto px-4 pb-1">
+          {archive.folders.map((folder) => {
+            const fileCount = filesByFolder[folder.slug]?.length ?? 0;
+            const isActive = folder.slug === activeFolderSlug;
+            if (folder.slug === "contact_info") {
+              return <ContactShard key={folder.slug} onOpen={openContact} />;
+            }
+            return (
+              <button
+                key={folder.slug}
+                type="button"
+                onClick={() => openFolder(folder.slug)}
+                className={cn(
+                  "clip-shard relative min-w-[15rem] shrink-0 snap-start border bg-panel p-3.5 text-left",
+                  "transition-[transform,border-color,background-color] duration-150 active:scale-[0.97]",
+                  isActive
+                    ? "border-info/50"
+                    : "border-border active:border-signal/60",
+                )}
+                style={isActive ? { background: "rgba(38,28,10,0.35)" } : undefined}
+              >
+                <span
+                  className={cn(
+                    "absolute right-3.5 top-1.5 font-mono text-[7.5px] tracking-[0.2em]",
+                    isActive ? "text-info-hot" : "text-signal/70",
+                  )}
+                  aria-hidden
+                >
+                  {isActive ? "▶ DECRYPTED" : "TAP ▸"}
+                </span>
+                <ShardCardBody folder={folder} fileCount={fileCount} isActive={isActive} />
+              </button>
+            );
+          })}
+        </div>
+        {/* right-edge fade: hints the strip continues off-screen */}
+        <span
+          className="pointer-events-none absolute inset-y-0 right-0 w-12"
+          style={{ background: "linear-gradient(270deg, rgba(4,13,16,0.92), transparent)" }}
+          aria-hidden
+        />
       </div>
     </nav>
   );
 }
 
-function StripHeader() {
+function StripHeader({ folderCount }: { folderCount: number }) {
   return (
-    <div className="mb-2.5">
-      <div className="flex items-center gap-2.5 font-tech text-[12px] font-semibold uppercase tracking-[0.42em] text-muted">
+    <div className="mb-2.5 flex items-center gap-2.5">
+      <span className="font-tech text-[12px] font-semibold uppercase tracking-[0.42em] text-muted">
         Memory Shards
-        <span
-          className="h-px flex-1"
-          style={{ background: "linear-gradient(90deg, rgba(61,212,200,0.35), transparent)" }}
-        />
-      </div>
+      </span>
+      <span
+        className="h-px flex-1"
+        style={{ background: "linear-gradient(90deg, rgba(61,212,200,0.35), transparent)" }}
+      />
+      <span className="whitespace-nowrap font-mono text-[9px] tracking-[0.18em] text-muted">
+        {folderCount} SECTORS · <span className="animate-pulse text-signal">SWIPE ▸▸</span>
+      </span>
     </div>
   );
 }
@@ -127,30 +163,27 @@ function ShardCardBody({
       <span className="min-w-0">
         <span
           className={cn(
-            "block truncate font-tech text-[15px] font-semibold tracking-wide",
+            "block truncate font-tech text-[17px] font-semibold tracking-wide",
             isActive ? "text-info-hot" : "text-text",
           )}
         >
           {folder.displayName}
         </span>
-        <span className="mt-0.5 flex items-center gap-1.5 font-mono text-[8.5px] tracking-[0.14em] text-muted">
+        <span className="mt-1 flex items-center gap-1.5 font-mono text-[8.5px] tracking-[0.14em] text-muted">
           {isLinks ? (
             "DIRECT CHANNEL"
           ) : (
-            <>
-              INTEGRITY
-              <span className="relative inline-block h-[3px] w-[52px] bg-signal/10" aria-hidden>
-                <span
-                  className={cn(
-                    "absolute inset-y-0 left-0",
-                    integrity < 70
-                      ? "bg-info shadow-[0_0_5px_rgba(200,144,32,0.7)]"
-                      : "bg-signal shadow-[0_0_5px_rgba(61,212,200,0.7)]",
-                  )}
-                  style={{ width: `${integrity}%` }}
-                />
-              </span>
-            </>
+            <span className="relative inline-block h-[3px] w-[76px] bg-signal/10" aria-hidden>
+              <span
+                className={cn(
+                  "absolute inset-y-0 left-0",
+                  integrity < 70
+                    ? "bg-info shadow-[0_0_5px_rgba(200,144,32,0.7)]"
+                    : "bg-signal shadow-[0_0_5px_rgba(61,212,200,0.7)]",
+                )}
+                style={{ width: `${integrity}%` }}
+              />
+            </span>
           )}
         </span>
       </span>
@@ -168,7 +201,8 @@ function ContactShard({ onOpen }: { onOpen: () => void }) {
       onClick={onOpen}
       aria-label="Open encrypted contact uplink"
       className={cn(
-        "clip-shard group relative min-w-[11.5rem] shrink-0 snap-start border border-info/40 p-3 text-left transition-colors hover:border-info/70",
+        "clip-shard group relative min-w-[15rem] shrink-0 snap-start border border-info/40 p-3.5 text-left",
+        "transition-[transform,border-color] duration-150 active:scale-[0.97] active:border-info/70",
         "focus:outline-none focus-visible:ring-1 focus-visible:ring-info/60",
       )}
       style={{ background: "rgba(38,28,10,0.30)" }}
@@ -187,7 +221,7 @@ function ContactShard({ onOpen }: { onOpen: () => void }) {
           <Lock className="size-3.5" />
         </span>
         <span className="min-w-0">
-          <span className="block truncate font-tech text-[15px] font-semibold tracking-wide text-info-hot">
+          <span className="block truncate font-tech text-[17px] font-semibold tracking-wide text-info-hot">
             Contact
           </span>
           <span className="anim-reconnect mt-0.5 block font-mono text-[8.5px] tracking-[0.14em] text-info/80">

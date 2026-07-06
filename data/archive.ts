@@ -294,6 +294,11 @@ const FILES: readonly ArchiveFile[] = [
         ],
       },
       {
+        kind: "text",
+        body:
+          "Speed doesn't mean sloppy. A senior developer who reviewed the codebase confirmed it — genuinely well-structured, logical, nothing close to the spaghetti mess fast agent output usually turns into. And every project ships with its own test suite, hundreds of tests deep, so I know the second something regresses instead of hearing about it from a user.",
+      },
+      {
         kind: "list",
         heading: "Where agents are doing real work for me right now",
         items: [
@@ -306,7 +311,7 @@ const FILES: readonly ArchiveFile[] = [
       {
         kind: "text",
         body:
-          "Most people are still figuring out how to prompt one model well. I'm past that — I'm running teams of them, each scoped, each with memory, each doing something specific instead of everything. That's the actual game. I started early. I'm not slowing down.",
+          "Most people are still figuring out how to prompt one model well. I'm past that — I've got multiple agents running in parallel, each in its own worktree, merged back by something that actually reads intent instead of just diffing lines. That's the actual game. I build with agents, and I'll keep building with them — getting better at it as I go.",
       },
     ],
     suggestedPrompts: [

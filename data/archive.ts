@@ -258,28 +258,23 @@ const FILES: readonly ArchiveFile[] = [
     slug: "ai-agents-overview",
     filename: "ai_agents_overview",
     title: "AI Agents Overview",
-    description: "Agent methodology — how I design and build AI-native systems.",
+    description: "Agent methodology — how I design, scope, and run AI-native systems.",
     folder: "ai_agents",
     sections: [
       {
         kind: "text",
         body:
-          "Agents aren't a side tool for me — they're the default way I work. I treat them the way an earlier generation of operators treated spreadsheets or the internet: a foundational layer that makes the human running them dramatically faster and more capable. My judgment, taste, and direction stay mine. The agents do the heavy lifting underneath.",
+          "Agents aren't a side tool — they're the operating layer everything else runs on. This website's chatbot, a law firm's content pipeline, my trading agent, and the system that manages all of them were all built by agent teams, not by me typing every line. My judgment and taste stay mine. The agents do the reps.",
       },
       {
         kind: "text",
         body:
-          "I run features in parallel across isolated git worktrees — each with its own Claude session and a bounded MISSION.md that defines exactly what that agent is allowed to touch. While one session is wiring up a backend service, another is building the frontend for a different feature entirely. Context doesn't bleed between them because scope is enforced at the branch level. This is how I ship fast without things breaking each other.",
+          "My own daily setup is three tiers deep. Kai is the top-level session — it routes me into whichever project I'm working on. Each project spins up its own orchestrator, which spawns feature-worker agents into isolated git worktrees, each bound to a MISSION.md that defines exactly what it's allowed to touch. When branches land, a dedicated merge agent reconciles them by reading what each branch was actually trying to do, not just diffing lines. Nothing bleeds across scope because the boundary is the worktree itself.",
       },
       {
         kind: "text",
         body:
-          "Context discipline is where most people lose productivity with agents. I keep agents scoped tight — hard-capped playbooks, warm-cached shared conventions, task classification that tells the orchestrator what it's looking at before it spawns anything. A quick one-file fix runs differently than a feature that touches schema, service, and UI. The right agent, at the right scope, with the right context — that's the whole game.",
-      },
-      {
-        kind: "text",
-        body:
-          "Scope creep is the silent killer of agent sessions. I've built patterns that prevent it: typed signals between agents so they never drift outside their role, a routing layer that checks known failure patterns before spawning anything new, and a distillation loop where agents self-update their own playbooks from what they got wrong. The system gets smarter over time without me having to manually tune it.",
+          "The part most agent setups get wrong is memory. Mine doesn't forget between sessions — I built SSB (Samuel's Second Brain), a Supabase + pgvector database with local embeddings that holds every idea, project, decision, and person I've logged. Any agent I run can query it instead of re-reading a pile of files, so a new session picks up where the last one left off instead of starting cold.",
       },
       {
         kind: "text",
@@ -300,28 +295,24 @@ const FILES: readonly ArchiveFile[] = [
       },
       {
         kind: "list",
-        heading: "How I actually use agents day-to-day",
+        heading: "Where agents are doing real work for me right now",
         items: [
-          "Worktree orchestration — spawn features into isolated branches, each with its own dedicated Claude session running in parallel",
-          "Multi-agent product teams — an orchestrator routes work to 6 specialist agents (frontend, backend, maps, security, QA, product), each with their own playbook and hard context budget",
-          "Parallel execution — independent work fans out simultaneously so multiple things ship at once without blocking each other",
-          "Scope enforcement — MISSION.md charters, typed cross-agent signals, and task classification keep agents inside their lane",
-          "Self-improving systems — background distiller agents mine session logs and update playbooks automatically; weekly evals catch regressions before they harden",
-          "Agents in the research loop — drafting theses, summarizing news, sanity-checking ideas before I commit to them",
-          "Agents in the ops loop — automating recurring chores so I spend time on what only I can do",
-          "Constant evaluation — reading model releases, new frameworks, and evals daily; swapping in whatever's better as soon as it ships",
+          "TortBot — an AI agent I built end-to-end for a law firm: it scouts news daily, pitches a story for approval, then writes, formats, and publishes the piece plus social teasers itself. Full pipeline, zero manual steps once it's approved. AEO, not SEO — the goal is showing up when someone asks an AI for a lawyer recommendation.",
+          "Swing trading agent — trades a defined universe of equities. I set the intent and risk tolerance; it researches, signals, and manages the position without collapsing everything into a fixed stop-loss and walking away.",
+          "SideQuestr — the map-first social coordination app all this machinery actually builds. ~50-person beta forming, shipped at roughly 940 lines of Swift a day.",
+          "Kai — the system managing all of the above, plus my calendar, contacts, and a daily brief that lands on my phone before I'm awake.",
         ],
       },
       {
         kind: "text",
         body:
-          "The bet I'm making: the operators who win the next decade learned to run agent teams early and well — not just how to prompt, but how to architect, scope, and manage them at scale. I started early. I'm getting better at it every week.",
+          "Most people are still figuring out how to prompt one model well. I'm past that — I'm running teams of them, each scoped, each with memory, each doing something specific instead of everything. That's the actual game. I started early. I'm not slowing down.",
       },
     ],
     suggestedPrompts: [
       "How does Samuel use AI agents in his work?",
-      "How does he manage multiple agents without things breaking?",
-      "What does his day-to-day with agents actually look like?",
+      "What's the system behind Kai?",
+      "What agents are running for him right now?",
     ],
   },
   {

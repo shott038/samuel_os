@@ -224,6 +224,13 @@ body::after {
   to   { stroke-dashoffset: -500; }
 }
 
+/* chat thinking indicator — staggered signal blocks (opacity/transform only) */
+@keyframes think-pulse {
+  0%, 60%, 100% { opacity: 0.15; transform: translateY(0); }
+  30%           { opacity: 1; transform: translateY(-2px); }
+}
+.think-dot { animation: think-pulse 1.2s ease-in-out infinite; }
+
 /* telemetry spine slider dot */
 @keyframes spine-slide {
   from { top: 12%; }

@@ -387,6 +387,9 @@ export default function ChatPanel() {
                   />
                 );
               })}
+              {isStreaming && messages[messages.length - 1]?.role === "user" && (
+                <ThinkingIndicator />
+              )}
             </ol>
           </div>
         )}
@@ -610,5 +613,27 @@ function MessageText({ text, streaming }: { text: string; streaming: boolean }) 
         </span>
       ))}
     </>
+  );
+}
+
+/** On-brand "typing" indicator: three staggered signal blocks in an AI card. */
+function ThinkingIndicator() {
+  return (
+    <li className="flex items-start" aria-label="Samuel OS is processing">
+      <div className="clip-msg-ai flex items-center gap-3 border border-border border-l-2 border-l-info bg-panel px-3.5 py-2.5">
+        <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-info-hot">
+          ▌ PROCESSING
+        </span>
+        <span className="flex items-center gap-1" aria-hidden>
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="think-dot size-1.5 bg-signal shadow-[0_0_6px_rgba(61,212,200,0.8)]"
+              style={{ animationDelay: `${i * 0.15}s` }}
+            />
+          ))}
+        </span>
+      </div>
+    </li>
   );
 }

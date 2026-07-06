@@ -2,20 +2,17 @@
 
 import {
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
   type KeyboardEvent,
 } from "react";
-import { ChevronRight, FileText, Lock, X } from "lucide-react";
+import { Lock } from "lucide-react";
 import { useArchive } from "@/lib/archive-context";
 import { cn } from "@/lib/utils";
-import type { ArchiveFolder, ArchiveFile, ArchiveFolderSlug } from "@/data/archive";
+import type { ArchiveFolder, ArchiveFolderSlug } from "@/data/archive";
 
-type Row =
-  | { kind: "folder"; folderSlug: ArchiveFolderSlug; id: string }
-  | { kind: "file"; folderSlug: ArchiveFolderSlug; fileSlug: string; id: string };
+type Row = { folderSlug: ArchiveFolderSlug; id: string };
 
 const FOLDER_GLYPH: Record<string, string> = {
   wiring: "◇",
@@ -41,9 +38,6 @@ function integrityFor(slug: string): number {
 
 export default function FileExplorer() {
   const { archive, activeSlug, openFile, openContact } = useArchive();
-
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [sheetFolder, setSheetFolder] = useState<ArchiveFolderSlug | null>(null);
 
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,50 +65,20 @@ export default function FileExplorer() {
     return archive.files.find((f) => f.slug === activeSlug)?.folder ?? null;
   }, [activeSlug, archive.files]);
 
-  const visibleRows = useMemo<Row[]>(() => {
-    const rows: Row[] = [];
-    for (const folder of archive.folders) {
-      rows.push({
-        kind: "folder",
-        folderSlug: folder.slug,
-        id: `folder:${folder.slug}`,
-      });
-      if (expanded[folder.slug]) {
-        for (const file of filesByFolder[folder.slug] ?? []) {
-          rows.push({
-            kind: "file",
-            folderSlug: folder.slug,
-            fileSlug: file.slug,
-            id: `file:${file.slug}`,
-          });
-        }
-      }
-    }
-    return rows;
-  }, [archive.folders, expanded, filesByFolder]);
+  // Every folder holds exactly one overview file — clicking the folder opens
+  // it directly, no expand-then-select step.
+  const visibleRows = useMemo<Row[]>(
+    () => archive.folders.map((folder) => ({ folderSlug: folder.slug, id: `folder:${folder.slug}` })),
+    [archive.folders],
+  );
 
-  // Auto-expand the folder containing the active file (e.g. when chat opens one
-  // via tool-call) so the highlight is actually visible.
-  useEffect(() => {
-    if (!activeSlug) return;
-    const file = archive.files.find((f) => f.slug === activeSlug);
-    if (!file) return;
-    setExpanded((prev) => (prev[file.folder] ? prev : { ...prev, [file.folder]: true }));
-  }, [activeSlug, archive.files]);
-
-  // Close the mobile sheet on Escape
-  useEffect(() => {
-    if (!sheetFolder) return;
-    const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") setSheetFolder(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [sheetFolder]);
-
-  const toggleFolder = useCallback((slug: ArchiveFolderSlug) => {
-    setExpanded((prev) => ({ ...prev, [slug]: !prev[slug] }));
-  }, []);
+  const openFolder = useCallback(
+    (slug: ArchiveFolderSlug) => {
+      const first = filesByFolder[slug]?.[0];
+      if (first) openFile(first.slug);
+    },
+    [filesByFolder, openFile],
+  );
 
   const focusRow = useCallback((id: string) => {
     setFocusedId(id);
@@ -154,51 +118,18 @@ export default function FileExplorer() {
           if (last) focusRow(last.id);
           break;
         }
-        case "ArrowRight": {
-          if (row.kind === "folder") {
-            e.preventDefault();
-            if (!expanded[row.folderSlug]) {
-              setExpanded((prev) => ({ ...prev, [row.folderSlug]: true }));
-            } else {
-              const firstChild = filesByFolder[row.folderSlug]?.[0];
-              if (firstChild) focusRow(`file:${firstChild.slug}`);
-            }
-          }
-          break;
-        }
-        case "ArrowLeft": {
-          if (row.kind === "folder") {
-            if (expanded[row.folderSlug]) {
-              e.preventDefault();
-              setExpanded((prev) => ({ ...prev, [row.folderSlug]: false }));
-            }
-          } else {
-            e.preventDefault();
-            focusRow(`folder:${row.folderSlug}`);
-          }
-          break;
-        }
         case "Enter":
         case " ": {
           e.preventDefault();
-          if (row.kind === "folder") {
-            toggleFolder(row.folderSlug);
-          } else {
-            openFile(row.fileSlug);
-          }
+          openFolder(row.folderSlug);
           break;
         }
         default:
           break;
       }
     },
-    [expanded, filesByFolder, focusRow, openFile, toggleFolder, visibleRows],
+    [focusRow, openFolder, visibleRows],
   );
-
-  const sheetFiles = sheetFolder ? filesByFolder[sheetFolder] ?? [] : [];
-  const sheetFolderData = sheetFolder
-    ? archive.folders.find((f) => f.slug === sheetFolder)
-    : null;
 
   return (
     <>
@@ -214,16 +145,13 @@ export default function FileExplorer() {
             <FolderShard
               key={folder.slug}
               folder={folder}
-              files={filesByFolder[folder.slug] ?? []}
-              isOpen={!!expanded[folder.slug]}
+              fileCount={filesByFolder[folder.slug]?.length ?? 0}
               isActive={folder.slug === activeFolderSlug}
               focusedId={focusedId}
               firstFolderSlug={archive.folders[0]?.slug}
-              activeSlug={activeSlug}
-              toggleFolder={toggleFolder}
+              openFolder={openFolder}
               setFocusedId={setFocusedId}
               handleKey={handleKey}
-              openFile={openFile}
             />
           ))}
 
@@ -243,16 +171,13 @@ export default function FileExplorer() {
                   <FolderShard
                     key={folder.slug}
                     folder={folder}
-                    files={filesByFolder[folder.slug] ?? []}
-                    isOpen={!!expanded[folder.slug]}
+                    fileCount={filesByFolder[folder.slug]?.length ?? 0}
                     isActive={folder.slug === activeFolderSlug}
                     focusedId={focusedId}
                     firstFolderSlug={archive.folders[0]?.slug}
-                    activeSlug={activeSlug}
-                    toggleFolder={toggleFolder}
+                    openFolder={openFolder}
                     setFocusedId={setFocusedId}
                     handleKey={handleKey}
-                    openFile={openFile}
                   />
                 ),
               )}
@@ -266,7 +191,7 @@ export default function FileExplorer() {
         <RailHeader folderCount={archive.folders.length} compact />
         <div className="scroll-strip -mx-4 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-1">
           {archive.folders.map((folder) => {
-            const files = filesByFolder[folder.slug] ?? [];
+            const fileCount = filesByFolder[folder.slug]?.length ?? 0;
             const isActive = folder.slug === activeFolderSlug;
             if (folder.slug === "contact_info") {
               return <ContactShard key={folder.slug} onOpen={openContact} mobile />;
@@ -275,7 +200,7 @@ export default function FileExplorer() {
               <button
                 key={folder.slug}
                 type="button"
-                onClick={() => setSheetFolder(folder.slug)}
+                onClick={() => openFolder(folder.slug)}
                 className={cn(
                   "clip-shard relative min-w-[11.5rem] shrink-0 snap-start border bg-panel p-3 text-left transition-colors",
                   isActive
@@ -284,74 +209,12 @@ export default function FileExplorer() {
                 )}
                 style={isActive ? { background: "rgba(38,28,10,0.35)" } : undefined}
               >
-                <ShardCardBody folder={folder} fileCount={files.length} isActive={isActive} />
+                <ShardCardBody folder={folder} fileCount={fileCount} isActive={isActive} />
               </button>
             );
           })}
         </div>
       </nav>
-
-      {/* ── Mobile: folder file sheet ── */}
-      {sheetFolder && sheetFolderData && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/60 md:hidden"
-            onClick={() => setSheetFolder(null)}
-            aria-hidden
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={sheetFolderData.displayName}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[70dvh] flex-col border-t border-border-hi bg-bg-deep/95 md:hidden"
-          >
-            <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
-              <span className="font-tech text-base font-semibold tracking-wide text-info-hot">
-                <span className="mr-2 text-signal">{FOLDER_GLYPH[sheetFolder] ?? "◆"}</span>
-                {sheetFolderData.displayName}
-              </span>
-              <button
-                type="button"
-                onClick={() => setSheetFolder(null)}
-                aria-label="Close"
-                className="rounded-sm p-1.5 text-text/80 transition-colors hover:text-text"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-            <p className="border-b border-border px-4 py-2 font-mono text-[10px] leading-relaxed text-muted">
-              {sheetFolderData.description}
-            </p>
-            <div className="scroll-system min-h-0 flex-1 overflow-y-auto p-3">
-              {sheetFiles.map((file) => (
-                <button
-                  key={file.slug}
-                  type="button"
-                  onClick={() => {
-                    openFile(file.slug);
-                    setSheetFolder(null);
-                  }}
-                  className={cn(
-                    "mb-1.5 flex w-full items-center gap-2.5 border border-border bg-panel px-3 py-2.5 text-left",
-                    file.slug === activeSlug && "border-signal/50 text-signal",
-                  )}
-                >
-                  <FileText className="size-4 shrink-0 text-muted" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-mono text-sm text-text">
-                      {file.filename}
-                    </span>
-                    <span className="block truncate font-mono text-[9px] uppercase tracking-wider text-muted">
-                      {file.title}
-                    </span>
-                  </span>
-                  <ChevronRight className="size-3.5 shrink-0 text-muted" />
-                </button>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
     </>
   );
 }
@@ -436,112 +299,54 @@ function ShardCardBody({
 
 interface FolderShardProps {
   folder: ArchiveFolder;
-  files: readonly ArchiveFile[];
-  isOpen: boolean;
+  fileCount: number;
   isActive: boolean;
   focusedId: string | null;
   firstFolderSlug: ArchiveFolderSlug | undefined;
-  activeSlug: string | null;
-  toggleFolder: (slug: ArchiveFolderSlug) => void;
+  openFolder: (slug: ArchiveFolderSlug) => void;
   setFocusedId: (id: string) => void;
   handleKey: (e: KeyboardEvent<HTMLElement>, row: Row) => void;
-  openFile: (slug: string) => void;
 }
 
 function FolderShard({
   folder,
-  files,
-  isOpen,
+  fileCount,
   isActive,
   focusedId,
   firstFolderSlug,
-  activeSlug,
-  toggleFolder,
+  openFolder,
   setFocusedId,
   handleKey,
-  openFile,
 }: FolderShardProps) {
   const folderId = `folder:${folder.slug}`;
   const isFocused = focusedId === folderId;
 
   return (
-    <div role="none" className="mb-2">
-      <button
-        type="button"
-        role="treeitem"
-        aria-expanded={isOpen}
-        aria-label={`${folder.displayName} — ${files.length} entries`}
-        title={folder.description}
-        tabIndex={isFocused || (focusedId === null && folder.slug === firstFolderSlug) ? 0 : -1}
-        data-row-id={folderId}
-        onClick={() => toggleFolder(folder.slug)}
-        onFocus={() => setFocusedId(folderId)}
-        onKeyDown={(e) =>
-          handleKey(e, { kind: "folder", folderSlug: folder.slug, id: folderId })
-        }
-        className={cn(
-          "clip-shard relative w-full border bg-panel p-3 text-left transition-colors",
-          "focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60",
-          isActive
-            ? "border-info/50"
-            : "border-border hover:border-border-hi hover:bg-panel-hi",
-        )}
-        style={isActive ? { background: "rgba(38,28,10,0.35)" } : undefined}
-      >
-        {isActive && (
-          <span className="absolute right-4 top-1.5 font-mono text-[7px] tracking-[0.2em] text-info-hot">
-            ▶ DECRYPTED
-          </span>
-        )}
-        <ShardCardBody folder={folder} fileCount={files.length} isActive={isActive} />
-      </button>
-
-      {isOpen && files.length > 0 && (
-        <div role="group" className="mb-1 mt-1">
-          {files.map((file) => {
-            const fileId = `file:${file.slug}`;
-            const isFileActive = file.slug === activeSlug;
-            const fileFocused = focusedId === fileId;
-            return (
-              <button
-                key={file.slug}
-                type="button"
-                role="treeitem"
-                aria-selected={isFileActive}
-                tabIndex={fileFocused ? 0 : -1}
-                data-row-id={fileId}
-                onClick={() => openFile(file.slug)}
-                onFocus={() => setFocusedId(fileId)}
-                onKeyDown={(e) =>
-                  handleKey(e, {
-                    kind: "file",
-                    folderSlug: folder.slug,
-                    fileSlug: file.slug,
-                    id: fileId,
-                  })
-                }
-                className={cn(
-                  "flex w-full items-center gap-2 py-1.5 pl-11 pr-2 text-left transition-colors",
-                  "motion-reduce:transition-none",
-                  "focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60",
-                  isFileActive
-                    ? "border-l-2 border-signal bg-bg-elev/60 pl-[calc(2.75rem-2px)] text-signal"
-                    : "flicker-on-hover border-l-2 border-transparent text-muted hover:bg-bg-elev/40 hover:text-text",
-                )}
-              >
-                <FileText
-                  className={cn(
-                    "size-3.5 shrink-0",
-                    isFileActive ? "text-signal" : "text-muted",
-                  )}
-                />
-                <span className="truncate font-mono text-[13px]">{file.filename}</span>
-              </button>
-            );
-          })}
-        </div>
+    <button
+      type="button"
+      aria-label={`Open ${folder.displayName}`}
+      title={folder.description}
+      tabIndex={isFocused || (focusedId === null && folder.slug === firstFolderSlug) ? 0 : -1}
+      data-row-id={folderId}
+      onClick={() => openFolder(folder.slug)}
+      onFocus={() => setFocusedId(folderId)}
+      onKeyDown={(e) => handleKey(e, { folderSlug: folder.slug, id: folderId })}
+      className={cn(
+        "clip-shard relative mb-2 w-full border bg-panel p-3 text-left transition-colors",
+        "focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60",
+        isActive
+          ? "border-info/50"
+          : "border-border hover:border-border-hi hover:bg-panel-hi",
       )}
-    </div>
+      style={isActive ? { background: "rgba(38,28,10,0.35)" } : undefined}
+    >
+      {isActive && (
+        <span className="absolute right-4 top-1.5 font-mono text-[7px] tracking-[0.2em] text-info-hot">
+          ▶ DECRYPTED
+        </span>
+      )}
+      <ShardCardBody folder={folder} fileCount={fileCount} isActive={isActive} />
+    </button>
   );
 }
 

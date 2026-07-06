@@ -92,7 +92,7 @@ export default function StatusBar() {
 
   return (
     <div className={cn(
-      "anim-scan relative z-10 flex items-center gap-3 border-b border-border px-3 py-2.5 font-mono text-[0.6rem] tracking-wider text-muted sm:gap-6 sm:px-6 sm:text-[0.68rem]",
+      "anim-scan relative z-10 flex items-center gap-3 border-b border-border px-3 py-2.5 font-mono text-[0.68rem] tracking-wider text-muted sm:gap-6 sm:px-6",
       glitching && "anim-glitch-hard",
     )}
     style={{ background: "linear-gradient(180deg, rgba(4,13,16,0.9), rgba(4,13,16,0.4))" }}
@@ -104,7 +104,7 @@ export default function StatusBar() {
         </span>
         <span className="flex min-w-0 flex-col leading-tight">
           <span className={cn(
-            "truncate font-disp text-[8px] tracking-[0.1em] min-[480px]:text-[10px] min-[480px]:tracking-[0.22em] sm:text-[11px] sm:tracking-[0.3em]",
+            "whitespace-nowrap font-disp text-[10.5px] tracking-[0.14em] sm:text-[11px] sm:tracking-[0.3em]",
             !isLost && !isReconnecting && "text-signal-active",
             isWeak && "anim-sig-weak text-warn",
             isLost && "anim-sig-lost text-crit",
@@ -112,7 +112,7 @@ export default function StatusBar() {
           )}>
             {OS_LABEL[signal]}
           </span>
-          <span className="whitespace-nowrap text-[7px] tracking-[0.24em] text-muted">
+          <span className="whitespace-nowrap text-[8px] tracking-[0.24em] text-muted">
             DEEP ARCHIVE // v2.0
           </span>
         </span>

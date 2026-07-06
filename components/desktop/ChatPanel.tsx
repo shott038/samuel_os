@@ -368,7 +368,7 @@ export default function ChatPanel() {
         {messages.length === 0 ? (
           <EmptyState onSelect={submit} disabled={isStreaming} />
         ) : (
-          <div className="mx-auto flex max-w-2xl flex-col px-4 pb-6">
+          <div className="flex flex-col px-6 pb-6">
             {/* Compact core stays at the head of the transcript */}
             <div className="flex flex-col items-center gap-1 pb-2 pt-4">
               <HoloCore size={128} />

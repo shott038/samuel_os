@@ -536,7 +536,7 @@ interface EmptyStateProps {
 function EmptyState({ onSelect, disabled }: EmptyStateProps) {
   return (
     <div className="mx-auto flex h-full min-h-fit max-w-3xl flex-col items-center justify-center gap-4 px-4 py-6 text-center sm:gap-5">
-      <HoloCore size={230} className="sm:hidden" />
+      <HoloCore size={320} className="sm:hidden" />
       <HoloCore size={300} className="max-sm:hidden" />
 
       <div>

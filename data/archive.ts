@@ -519,11 +519,10 @@ const FILES: readonly ArchiveFile[] = [
         kind: "list",
         heading: "Current pursuits",
         items: [
-          "Baseball — still training, focused on swing mechanics and contrast work",
+          "Baseball — done playing, still obsessed with the analytics and mechanics behind it",
           "Chess — active on chess.com (shott_038), pattern-recognition work",
           "Poker — studying theory and playing; overlap with business decision-making under uncertainty",
           "Basketball and ping pong — casual but competitive",
-          "Building watches — mechanical assembly, precision work, patience",
           "FPV drones — flying and building; engineering and spatial awareness",
           "Race cars and automotive engineering — Porsche engineering philosophy, Ferrari aesthetics; long-run dream project is building a car",
           "Photography — composition, light, capturing moments without overthinking",

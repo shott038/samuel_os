@@ -1,9 +1,4 @@
-"use client";
-
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Folder, X } from "lucide-react";
-import { useArchive } from "@/lib/archive-context";
-import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 interface Props {
   left: ReactNode;
@@ -12,94 +7,48 @@ interface Props {
 }
 
 export default function LayoutShell({ left, right, status }: Props) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const { activeSlug } = useArchive();
-  const prevSlug = useRef<string | null>(activeSlug);
-
-  // Auto-close the drawer when a file actually opens (activeSlug changes
-  // from null → something, or to a different file).
-  useEffect(() => {
-    if (activeSlug && activeSlug !== prevSlug.current) {
-      setDrawerOpen(false);
-    }
-    prevSlug.current = activeSlug;
-  }, [activeSlug]);
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setDrawerOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen]);
-
   return (
-    <div className="terminal-glow relative flex h-dvh flex-col bg-bg">
+    <div className="terminal-glow relative z-[5] flex h-dvh flex-col">
       {status}
 
-      {/* Mobile toolbar — visible below md */}
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-bg-deep px-3 py-2.5 md:hidden">
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(true)}
-          aria-label="Open archive"
-          className="flex items-center gap-2 rounded-sm border border-info/40 bg-bg-elev px-4 py-2.5 font-mono text-sm uppercase tracking-widest text-info transition-colors hover:border-signal hover:text-signal active:bg-bg-deep"
-        >
-          <Folder className="size-5" />
-          Archive
-        </button>
-        <span className="font-mono text-[0.65rem] uppercase tracking-widest text-muted">
-          SOS_v1
-        </span>
-      </div>
+      <div className="flex min-h-0 flex-1 flex-col md:grid md:grid-cols-[minmax(0,20rem)_1fr_3.5rem]">
+        {/* Stage first in DOM for mobile order; grid places it via md:order */}
+        <section className="order-1 min-h-0 flex-1 overflow-hidden md:order-2">
+          {right}
+        </section>
 
-      <div className="grid flex-1 min-h-0 grid-cols-1 md:grid-cols-[minmax(0,18rem)_1fr]">
-        {/* Desktop-only inline left panel */}
-        <section className="hidden min-h-0 overflow-hidden border-border md:block md:border-r">
+        {/* Archive: desktop = left rail; mobile = bottom strip */}
+        <section
+          className="order-2 min-h-0 shrink-0 border-t border-border md:order-1 md:block md:border-r md:border-t-0"
+          style={{ background: "linear-gradient(180deg, rgba(6,17,20,0.72), rgba(6,17,20,0.25))" }}
+        >
           {left}
         </section>
 
-        {/* Right panel is always visible */}
-        <section className="min-h-0 overflow-hidden">{right}</section>
-      </div>
-
-      {/* Mobile drawer */}
-      {drawerOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Archive"
-            className={cn(
-              "fixed inset-y-0 left-0 z-50 flex w-[88vw] max-w-sm flex-col",
-              "border-r border-border bg-bg shadow-2xl md:hidden",
-            )}
+        {/* Telemetry spine (desktop only) */}
+        <aside
+          className="order-3 hidden flex-col items-center gap-4 border-l border-border py-5 md:flex"
+          style={{ background: "linear-gradient(180deg, rgba(6,17,20,0.7), rgba(6,17,20,0.3))" }}
+          aria-hidden
+        >
+          <span className="font-mono text-[9px] uppercase tracking-[0.5em] text-muted [writing-mode:vertical-rl]">
+            LAT <b className="font-normal text-signal">32.36N</b> · LON{" "}
+            <b className="font-normal text-signal">86.30W</b>
+          </span>
+          <span
+            className="relative w-px flex-1"
+            style={{
+              background:
+                "repeating-linear-gradient(180deg, rgba(61,212,200,0.4) 0 1px, transparent 1px 12px)",
+            }}
           >
-            <div className="flex shrink-0 items-center justify-between border-b border-border bg-bg-deep px-4 py-3">
-              <span className="font-mono text-xs uppercase tracking-widest text-info">
-                ARCHIVE_SYSTEM
-              </span>
-              <button
-                type="button"
-                onClick={() => setDrawerOpen(false)}
-                aria-label="Close archive"
-                className="rounded-sm p-1 text-text/80 transition-colors hover:bg-bg-elev hover:text-text focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-hidden">
-              {left}
-            </div>
-          </div>
-        </>
-      )}
+            <span className="anim-spine-slide absolute -left-[2.5px] size-1.5 rounded-full bg-info shadow-[0_0_10px_var(--brand-info)]" />
+          </span>
+          <span className="font-mono text-[8px] tracking-[0.3em] text-muted/60 [writing-mode:vertical-rl]">
+            SECTOR 07 // PBA_UPLINK // EST. 2028
+          </span>
+        </aside>
+      </div>
     </div>
   );
 }

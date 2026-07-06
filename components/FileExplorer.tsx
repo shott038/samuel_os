@@ -229,9 +229,11 @@ function RailHeader({ folderCount, compact }: { folderCount: number; compact?: b
           style={{ background: "linear-gradient(90deg, rgba(61,212,200,0.35), transparent)" }}
         />
       </div>
-      <div className="mt-1 font-mono text-[9px] tracking-[0.2em] text-muted/70">
-        {folderCount} SECTORS RECOVERED · 1 DECRYPTING
-      </div>
+      {!compact && (
+        <div className="mt-1 font-mono text-[9px] tracking-[0.2em] text-muted/70">
+          {folderCount} SECTORS RECOVERED · 1 DECRYPTING
+        </div>
+      )}
     </div>
   );
 }

@@ -473,7 +473,7 @@ export default function ChatPanel() {
               </button>
             </form>
             {hint && (
-              <p className="text-center font-mono text-[8px] uppercase tracking-[0.28em] text-muted/60">
+              <p className="hidden text-center font-mono text-[8px] uppercase tracking-[0.28em] text-muted/60 sm:block">
                 {hint}
               </p>
             )}
@@ -550,7 +550,7 @@ function EmptyState({ onSelect, disabled }: EmptyStateProps) {
         <h1 className="anim-crt-blip font-disp text-[26px] uppercase tracking-[0.24em] text-signal-active [text-shadow:0_0_22px_rgba(61,212,200,0.45),0_0_60px_rgba(61,212,200,0.18)] sm:text-[38px] sm:tracking-[0.3em]">
           Samuel<span className="text-info-hot [text-shadow:0_0_22px_rgba(200,144,32,0.5)]">_</span>OS
         </h1>
-        <p className="mt-2.5 font-mono text-[8px] uppercase tracking-[0.4em] text-muted sm:text-[9.5px] sm:tracking-[0.5em]">
+        <p className="mt-2.5 hidden font-mono text-[9.5px] uppercase tracking-[0.5em] text-muted sm:block">
           RECONSTRUCTED INTELLIGENCE <span className="text-signal">//</span> QUERY THE ARCHIVE
         </p>
       </div>

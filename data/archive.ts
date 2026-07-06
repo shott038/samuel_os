@@ -154,6 +154,16 @@ const FILES: readonly ArchiveFile[] = [
           "A person who finishes what they start",
         ],
       },
+      {
+        kind: "list",
+        heading: "My weakness — since every interview asks 😭🙏",
+        items: [
+          "I'm more right-brained than the finance degree lets on. The problems that light me up are the ones nobody's solved yet — nothing figured out, shape of the answer unclear.",
+          "I want to be at the start of something, always. New problem, new unknown, next thing.",
+          "What I don't enjoy: everything after building. Grinding for users, advertising, the slow unglamorous work of getting people to actually use it.",
+          "I'll build the thing. Someone else can sell it.",
+        ],
+      },
     ],
     suggestedPrompts: [
       "What are Samuel's core operating principles?",

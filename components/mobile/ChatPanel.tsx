@@ -14,7 +14,6 @@ import {
 } from "react";
 
 import HoloCore from "@/components/shared/HoloCore";
-import SignalDot from "@/components/shared/SignalDot";
 import { getFile } from "@/data/archive";
 import { useArchive } from "@/lib/archive-context";
 import { cn } from "@/lib/utils";
@@ -339,23 +338,17 @@ export default function ChatPanel() {
         )}
       </AnimatePresence>
 
-      <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-2 font-mono text-[0.62rem] uppercase tracking-[0.24em]">
-        <div className="flex items-center gap-2 text-info">
-          <SignalDot tone="signal" className="animate-pulse" />
-          SOS // CONSOLE
-        </div>
-        {!systemLocked && (
-          <button
-            type="button"
-            onClick={onReset}
-            disabled={messages.length === 0 && !error}
-            className="rounded-sm border border-border px-2 py-0.5 text-muted transition-colors hover:border-border-hi hover:text-signal disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Clear chat history"
-          >
-            Reset
-          </button>
-        )}
-      </header>
+      {/* No console header on mobile — reset floats over the transcript to save vertical space */}
+      {!systemLocked && (messages.length > 0 || error) && (
+        <button
+          type="button"
+          onClick={onReset}
+          className="absolute right-3 top-2 z-20 rounded-sm border border-border bg-bg-deep/80 px-2 py-0.5 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-muted transition-colors active:text-signal"
+          aria-label="Clear chat history"
+        >
+          Reset
+        </button>
+      )}
 
       <div
         ref={listRef}

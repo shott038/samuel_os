@@ -52,7 +52,7 @@ export default function HoloCore({ size = 300, labels = false, className }: Prop
       {/* the reconstructed head */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/hologram.png"
+        src="/hologram.webp"
         alt=""
         className="hologram-idle object-cover object-top"
         style={{

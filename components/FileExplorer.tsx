@@ -270,7 +270,7 @@ export default function FileExplorer() {
                 type="button"
                 onClick={() => setSheetFolder(folder.slug)}
                 className={cn(
-                  "clip-shard relative min-w-[11.5rem] shrink-0 snap-start border bg-panel p-3 text-left backdrop-blur-sm transition-colors",
+                  "clip-shard relative min-w-[11.5rem] shrink-0 snap-start border bg-panel p-3 text-left transition-colors",
                   isActive
                     ? "border-info/50"
                     : "border-border active:border-border-hi",
@@ -288,7 +288,7 @@ export default function FileExplorer() {
       {sheetFolder && sheetFolderData && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-40 bg-black/60 md:hidden"
             onClick={() => setSheetFolder(null)}
             aria-hidden
           />
@@ -296,7 +296,7 @@ export default function FileExplorer() {
             role="dialog"
             aria-modal="true"
             aria-label={sheetFolderData.displayName}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[70dvh] flex-col border-t border-border-hi bg-bg-deep/95 backdrop-blur-md md:hidden"
+            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[70dvh] flex-col border-t border-border-hi bg-bg-deep/95 md:hidden"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
               <span className="font-tech text-base font-semibold tracking-wide text-info-hot">
@@ -473,7 +473,7 @@ function FolderShard({
           handleKey(e, { kind: "folder", folderSlug: folder.slug, id: folderId })
         }
         className={cn(
-          "clip-shard relative w-full border bg-panel p-3 text-left backdrop-blur-sm transition-colors",
+          "clip-shard relative w-full border bg-panel p-3 text-left transition-colors",
           "focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60",
           isActive
             ? "border-info/50"

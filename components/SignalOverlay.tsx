@@ -74,7 +74,6 @@ export default function SignalOverlay() {
             background: bar.teal
               ? `rgba(61, 212, 200, ${bar.opacity})`
               : `rgba(200, 144, 32, ${bar.opacity * 0.6})`,
-            backdropFilter: `brightness(${0.8 + Math.random() * 0.6}) saturate(${0.4 + Math.random()})`,
           }}
         />
       ))}

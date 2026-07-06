@@ -339,7 +339,7 @@ export default function ChatPanel() {
         )}
       </AnimatePresence>
 
-      <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-2 font-mono text-[0.62rem] uppercase tracking-[0.24em] backdrop-blur-sm">
+      <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-2 font-mono text-[0.62rem] uppercase tracking-[0.24em]">
         <div className="flex items-center gap-2 text-info">
           <SignalDot tone="signal" className="animate-pulse" />
           SOS // CONSOLE
@@ -394,7 +394,7 @@ export default function ChatPanel() {
 
       <div className="flex flex-col gap-2 px-3 pb-3 pt-2 sm:px-5 sm:pb-4">
         {activeFile ? (
-          <div className="flex items-center justify-between gap-2 border border-info/25 bg-bg-elev/70 px-3 py-2 font-mono text-xs text-info backdrop-blur-sm">
+          <div className="flex items-center justify-between gap-2 border border-info/25 bg-bg-elev/70 px-3 py-2 font-mono text-xs text-info">
             <span className="truncate">▌ Viewing: /{activeFile.folder}/{activeFile.filename}</span>
             <button
               type="button"
@@ -425,7 +425,7 @@ export default function ChatPanel() {
           <>
             <form
               onSubmit={onSubmit}
-              className="clip-console flex items-end gap-2.5 border border-border-hi p-2.5 backdrop-blur-md sm:gap-3 sm:p-3"
+              className="clip-console flex items-end gap-2.5 border border-border-hi p-2.5 sm:gap-3 sm:p-3"
               style={{
                 background: "linear-gradient(180deg, rgba(10,26,30,0.85), rgba(6,17,20,0.9))",
                 boxShadow: "0 0 34px rgba(61,212,200,0.10), inset 0 1px 0 rgba(143,247,238,0.08)",
@@ -437,7 +437,7 @@ export default function ChatPanel() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/hologram.png"
+                  src="/hologram.webp"
                   alt=""
                   className="hologram-idle h-full w-full object-cover object-top"
                   style={{ mixBlendMode: "screen" }}
@@ -504,7 +504,7 @@ function MessageRow({ message, showStreamingCursor }: MessageRowProps) {
             <div
               key={key}
               className={cn(
-                "max-w-[85%] whitespace-pre-wrap font-mono text-[13.5px] leading-relaxed backdrop-blur-sm",
+                "max-w-[85%] whitespace-pre-wrap font-mono text-[13.5px] leading-relaxed",
                 isUser
                   ? "clip-msg-user border border-signal/25 bg-signal/5 px-3.5 py-2.5 text-signal-active"
                   : "clip-msg-ai border border-border border-l-2 border-l-info bg-panel px-3.5 py-2.5 text-text/95"
@@ -556,7 +556,7 @@ function EmptyState({ onSelect, disabled }: EmptyStateProps) {
             type="button"
             disabled={disabled}
             onClick={() => onSelect(p.text)}
-            className="clip-chip flicker-on-hover shrink-0 snap-start border border-border bg-panel px-4 py-2.5 text-left backdrop-blur-sm transition-colors hover:border-border-hi hover:bg-panel-hi disabled:cursor-not-allowed disabled:opacity-50"
+            className="clip-chip flicker-on-hover shrink-0 snap-start border border-border bg-panel px-4 py-2.5 text-left transition-colors hover:border-border-hi hover:bg-panel-hi disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span className="block font-mono text-[8px] tracking-[0.24em] text-muted">
               {p.label}

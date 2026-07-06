@@ -95,7 +95,7 @@ export default function StatusBar() {
 
   return (
     <div className={cn(
-      "anim-scan relative z-10 flex items-center gap-3 border-b border-border px-3 py-2.5 font-mono text-[0.6rem] tracking-wider text-muted backdrop-blur-sm sm:gap-6 sm:px-6 sm:text-[0.68rem]",
+      "anim-scan relative z-10 flex items-center gap-3 border-b border-border px-3 py-2.5 font-mono text-[0.6rem] tracking-wider text-muted sm:gap-6 sm:px-6 sm:text-[0.68rem]",
       glitching && "anim-glitch-hard",
     )}
     style={{ background: "linear-gradient(180deg, rgba(4,13,16,0.9), rgba(4,13,16,0.4))" }}

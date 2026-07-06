@@ -515,7 +515,10 @@ function MessageRow({ message, showStreamingCursor }: MessageRowProps) {
                   ▌ SAMUEL_OS // RECONSTRUCTED
                 </span>
               )}
-              {part.text}
+              <MessageText
+                text={part.text}
+                streaming={showStreamingCursor && i === message.parts.length - 1}
+              />
               {showStreamingCursor && i === message.parts.length - 1 ? (
                 <span className="ml-0.5 inline-block animate-pulse text-signal">▍</span>
               ) : null}
@@ -568,5 +571,44 @@ function EmptyState({ onSelect, disabled }: EmptyStateProps) {
         ))}
       </div>
     </div>
+  );
+}
+
+// ─── Contact uplink marker ──────────────────────────────────────────────────
+// The model emits [[CONTACT_UPLINK]] instead of contact details; we render it
+// as a button that opens the encrypted contact terminal.
+
+const CONTACT_MARKER = "[[CONTACT_UPLINK]]";
+
+/** While streaming, hide a trailing partial marker so "[[CONTACT_UP" never flashes. */
+function stripPartialMarker(text: string): string {
+  for (let i = Math.min(CONTACT_MARKER.length - 1, text.length); i > 0; i--) {
+    if (text.endsWith(CONTACT_MARKER.slice(0, i))) return text.slice(0, text.length - i);
+  }
+  return text;
+}
+
+function MessageText({ text, streaming }: { text: string; streaming: boolean }) {
+  const { openContact } = useArchive();
+  const display = streaming ? stripPartialMarker(text) : text;
+  const segments = display.split(CONTACT_MARKER);
+
+  return (
+    <>
+      {segments.map((seg, i) => (
+        <span key={i}>
+          {seg}
+          {i < segments.length - 1 && (
+            <button
+              type="button"
+              onClick={openContact}
+              className="clip-btn my-1 inline-flex items-center gap-2 border border-info/50 bg-info/10 px-3.5 py-2 font-tech text-[13px] font-bold tracking-[0.2em] text-info-hot transition-colors hover:bg-info/20 hover:text-signal-active"
+            >
+              ▸ OPEN CONTACT UPLINK
+            </button>
+          )}
+        </span>
+      ))}
+    </>
   );
 }

@@ -7,6 +7,9 @@ interface ArchiveContextValue {
   activeSlug: string | null;
   openFile: (slug: string) => void;
   closeFile: () => void;
+  contactOpen: boolean;
+  openContact: () => void;
+  closeContact: () => void;
   archive: ArchiveTree;
   pendingPrompt: string | null;
   submitPrompt: (text: string) => void;
@@ -20,6 +23,10 @@ const HASH_PREFIX = "#file-";
 export function ArchiveProvider({ children }: { children: ReactNode }) {
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
+
+  const openContact = useCallback(() => setContactOpen(true), []);
+  const closeContact = useCallback(() => setContactOpen(false), []);
 
   const openFile = useCallback((slug: string) => {
     if (!getFile(slug)) return;
@@ -73,6 +80,9 @@ export function ArchiveProvider({ children }: { children: ReactNode }) {
         activeSlug,
         openFile,
         closeFile,
+        contactOpen,
+        openContact,
+        closeContact,
         archive: ARCHIVE,
         pendingPrompt,
         submitPrompt,

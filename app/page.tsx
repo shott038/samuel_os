@@ -4,6 +4,7 @@ import LeftPanel from "@/components/LeftPanel";
 import ChatPanel from "@/components/ChatPanel";
 import FileViewer from "@/components/FileViewer";
 import SignalOverlay from "@/components/SignalOverlay";
+import ContactTerminal from "@/components/ContactTerminal";
 export default function Home() {
   return (
     <>
@@ -22,6 +23,7 @@ export default function Home() {
         }
       />
       <FileViewer />
+      <ContactTerminal />
       <SignalOverlay />
     </>
   );

@@ -8,7 +8,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
-import { ChevronRight, FileText, X } from "lucide-react";
+import { ChevronRight, FileText, Lock, X } from "lucide-react";
 import { useArchive } from "@/lib/archive-context";
 import { cn } from "@/lib/utils";
 import type { ArchiveFolder, ArchiveFile, ArchiveFolderSlug } from "@/data/archive";
@@ -40,7 +40,7 @@ function integrityFor(slug: string): number {
 }
 
 export default function FileExplorer() {
-  const { archive, activeSlug, openFile } = useArchive();
+  const { archive, activeSlug, openFile, openContact } = useArchive();
 
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [sheetFolder, setSheetFolder] = useState<ArchiveFolderSlug | null>(null);
@@ -236,22 +236,26 @@ export default function FileExplorer() {
                 </span>
                 <div className="h-px flex-1 bg-signal/15" />
               </div>
-              {linksFolders.map((folder) => (
-                <FolderShard
-                  key={folder.slug}
-                  folder={folder}
-                  files={filesByFolder[folder.slug] ?? []}
-                  isOpen={!!expanded[folder.slug]}
-                  isActive={folder.slug === activeFolderSlug}
-                  focusedId={focusedId}
-                  firstFolderSlug={archive.folders[0]?.slug}
-                  activeSlug={activeSlug}
-                  toggleFolder={toggleFolder}
-                  setFocusedId={setFocusedId}
-                  handleKey={handleKey}
-                  openFile={openFile}
-                />
-              ))}
+              {linksFolders.map((folder) =>
+                folder.slug === "contact_info" ? (
+                  <ContactShard key={folder.slug} onOpen={openContact} />
+                ) : (
+                  <FolderShard
+                    key={folder.slug}
+                    folder={folder}
+                    files={filesByFolder[folder.slug] ?? []}
+                    isOpen={!!expanded[folder.slug]}
+                    isActive={folder.slug === activeFolderSlug}
+                    focusedId={focusedId}
+                    firstFolderSlug={archive.folders[0]?.slug}
+                    activeSlug={activeSlug}
+                    toggleFolder={toggleFolder}
+                    setFocusedId={setFocusedId}
+                    handleKey={handleKey}
+                    openFile={openFile}
+                  />
+                ),
+              )}
             </>
           )}
         </div>
@@ -264,6 +268,9 @@ export default function FileExplorer() {
           {archive.folders.map((folder) => {
             const files = filesByFolder[folder.slug] ?? [];
             const isActive = folder.slug === activeFolderSlug;
+            if (folder.slug === "contact_info") {
+              return <ContactShard key={folder.slug} onOpen={openContact} mobile />;
+            }
             return (
               <button
                 key={folder.slug}
@@ -535,5 +542,47 @@ function FolderShard({
         </div>
       )}
     </div>
+  );
+}
+
+function ContactShard({ onOpen, mobile }: { onOpen: () => void; mobile?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label="Open encrypted contact uplink"
+      className={cn(
+        "clip-shard group relative border border-info/40 p-3 text-left transition-colors hover:border-info/70",
+        mobile ? "min-w-[11.5rem] shrink-0 snap-start" : "mb-2 w-full",
+        "focus:outline-none focus-visible:ring-1 focus-visible:ring-info/60",
+      )}
+      style={{ background: "rgba(38,28,10,0.30)" }}
+    >
+      {/* slow amber breathing glow — opacity-only, compositor-cheap */}
+      <span
+        className="anim-core-pulse pointer-events-none absolute inset-0"
+        style={{ boxShadow: "inset 0 0 24px rgba(200,144,32,0.14)" }}
+        aria-hidden
+      />
+      <span className="grid grid-cols-[30px_1fr_auto] items-center gap-3">
+        <span
+          className="grid size-[30px] place-items-center border border-info/50 bg-info/10 text-info-hot"
+          aria-hidden
+        >
+          <Lock className="size-3.5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate font-tech text-[15px] font-semibold tracking-wide text-info-hot">
+            Contact
+          </span>
+          <span className="anim-reconnect mt-0.5 block font-mono text-[8.5px] tracking-[0.14em] text-info/80">
+            ENCRYPTED // ACCESS REQUIRED
+          </span>
+        </span>
+        <span className="font-mono text-[10px] text-info-hot" aria-hidden>
+          ⚿
+        </span>
+      </span>
+    </button>
   );
 }

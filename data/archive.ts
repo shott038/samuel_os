@@ -15,11 +15,9 @@ export type ArchiveFolderSlug =
   | "ai_agents"
   | "finance"
   | "academics"
-  | "writings"
   | "baseball"
   | "faith_roots"
   | "hobbies"
-  | "photography"
   | "references"
   | "contact_info";
 
@@ -77,12 +75,6 @@ const FOLDERS: readonly ArchiveFolder[] = [
     section: "archive",
   },
   {
-    slug: "writings",
-    displayName: "/writings",
-    description: "Thinking on the page — essays, notes, and long-form takes.",
-    section: "archive",
-  },
-  {
     slug: "baseball",
     displayName: "/baseball",
     description: "The game that shaped how I think about performance and data.",
@@ -101,12 +93,6 @@ const FOLDERS: readonly ArchiveFolder[] = [
     section: "archive",
   },
   {
-    slug: "photography",
-    displayName: "/photography",
-    description: "Light, composition, and the moments worth keeping.",
-    section: "archive",
-  },
-  {
     slug: "references",
     displayName: "/references",
     description: "People who can speak to my work and character.",
@@ -114,8 +100,8 @@ const FOLDERS: readonly ArchiveFolder[] = [
   },
   {
     slug: "contact_info",
-    displayName: "/contact_info",
-    description: "Get in touch.",
+    displayName: "Contact",
+    description: "Encrypted operator channel — direct line to Samuel.",
     section: "links",
   },
 ];
@@ -434,36 +420,6 @@ const FILES: readonly ArchiveFile[] = [
     ],
   },
   {
-    slug: "writings-overview",
-    filename: "writings_overview",
-    title: "Writings Overview",
-    description: "Thinking on the page — essays, notes, and long-form takes.",
-    folder: "writings",
-    sections: [
-      {
-        kind: "text",
-        body:
-          "Writing is where I test whether I actually understand something. If I can't explain it clearly in one page, I don't understand it well enough. I write across registers — formal when the argument needs structure, casual when speed matters, and persuasive when I'm trying to change someone's mind.",
-      },
-      {
-        kind: "list",
-        heading: "Notable pieces and topics",
-        items: [
-          "\"The Value of Bitcoin\" (March 2026) — fiat's three core failures (inflation, centralized control, slow transfers), how Bitcoin addresses each, and the case for Bitcoin as a store of value. \"Bet on greed. Bet on Bitcoin.\"",
-          "Finance and capital markets — theses on stablecoin rails, treasury management, and the onchain transition",
-          "Theology — working through presuppositional apologetics and its implications",
-          "Sports analytics — performance models, training philosophy, what separates elite athletes",
-          "History and economics — how monetary systems collapse and what replaces them",
-        ],
-      },
-    ],
-    suggestedPrompts: [
-      "What does Samuel write about?",
-      "What is his best essay?",
-      "How does he use writing in his thinking process?",
-    ],
-  },
-  {
     slug: "baseball-overview",
     filename: "baseball_overview",
     title: "Baseball Overview",
@@ -583,36 +539,6 @@ const FILES: readonly ArchiveFile[] = [
       "What does Samuel do outside of work?",
       "What are his hobbies?",
       "What's the dream project he talks about building someday?",
-    ],
-  },
-  {
-    slug: "photography-overview",
-    filename: "photography_overview",
-    title: "Photography",
-    description: "Composition, light, and the moments worth keeping.",
-    folder: "photography",
-    sections: [
-      {
-        kind: "text",
-        body:
-          "I shoot the way I think — fast, intuitive, and chasing the moment instead of the setup. Most of these are iPhone frames caught on the way to somewhere else. The discipline isn't in the gear; it's in noticing when light, weather, and geometry briefly agree.",
-      },
-      {
-        kind: "image_gallery",
-        heading: "Selected frames",
-        columns: 4,
-        images: [
-          { src: "/photos/photo-lake-sunrise.webp", alt: "Sunrise reflection on a glassy lake", filename: "lake_mirror.png", caption: "Glassy water, sunrise, Alabama", aspect: "landscape" },
-          { src: "/photos/photo-mountain-ridge.webp", alt: "Blue Ridge layers at dusk", filename: "blue_ridge.png", caption: "Ridges, dusk", aspect: "landscape" },
-          { src: "/photos/photo-tree-sunset.webp", alt: "Lone gnarled tree at sunset over a field", filename: "lone_tree.png", caption: "Lone tree, last light", aspect: "portrait" },
-          { src: "/photos/photo-ferrari-palms.webp", alt: "Red Ferrari under palms with sunburst", filename: "ferrari_palms.png", caption: "Palm Beach, golden hour", aspect: "portrait" },
-        ],
-      },
-    ],
-    suggestedPrompts: [
-      "Show me Samuel's photography.",
-      "What does he look for in a photo?",
-      "Where were these taken?",
     ],
   },
   {

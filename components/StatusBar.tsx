@@ -22,8 +22,8 @@ const SIGNAL_LABEL: Record<SignalLevel, string> = {
 };
 
 const OS_LABEL: Record<SignalLevel, string> = {
-  stable:       "SAMUEL_OS",
-  weak:         "SAMUEL_OS",
+  stable:       "SAMUEL_OPERATING_SYSTEM",
+  weak:         "SAMUEL_OPERATING_SYSTEM",
   lost:         "///SIGNAL LOST///",
   reconnecting: "RECONNECTING...",
 };
@@ -101,13 +101,13 @@ export default function StatusBar() {
     style={{ background: "linear-gradient(180deg, rgba(4,13,16,0.9), rgba(4,13,16,0.4))" }}
     >
       {/* brand */}
-      <span className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+      <span className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3 md:flex-initial">
         <span className="relative block size-4 rotate-45 border border-border-hi sm:size-5" aria-hidden>
           <span className="anim-core-pulse absolute inset-[4px] bg-signal shadow-[0_0_12px_var(--brand-signal)] sm:inset-[5px]" />
         </span>
-        <span className="flex flex-col leading-tight">
+        <span className="flex min-w-0 flex-col leading-tight">
           <span className={cn(
-            "font-disp text-[10px] tracking-[0.22em] sm:text-[11px] sm:tracking-[0.3em]",
+            "truncate font-disp text-[8px] tracking-[0.1em] min-[480px]:text-[10px] min-[480px]:tracking-[0.22em] sm:text-[11px] sm:tracking-[0.3em]",
             !isLost && !isReconnecting && "text-signal-active",
             isWeak && "anim-sig-weak text-warn",
             isLost && "anim-sig-lost text-crit",
@@ -137,7 +137,7 @@ export default function StatusBar() {
         isWeak && "anim-sig-weak",
         isLost && "anim-sig-lost",
       )}>
-        <span className="max-[380px]:hidden">archive_integrity</span>
+        <span className="max-sm:hidden">archive_integrity</span>
         <span className="text-info-hot">
           {isLost ? "--%" : isReconnecting ? "??" : `${integrity}%`}
         </span>

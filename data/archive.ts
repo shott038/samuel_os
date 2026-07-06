@@ -536,7 +536,7 @@ const FILES: readonly ArchiveFile[] = [
           { src: "/photos/hobby-fpv-drone.webp", alt: "FPV drone with goggles, controller, and battery", filename: "fpv_rig.png", caption: "FPV rig — drone, goggles, transmitter", aspect: "square" },
           { src: "/photos/hobby-fishing-bass.webp", alt: "Samuel holding a largemouth bass on the boat", filename: "everglades_bass.png", caption: "Fly rod, largemouth, Florida", aspect: "portrait" },
           { src: "/photos/hobby-pilot.webp", alt: "Samuel in pilot's uniform at the terminal", filename: "pilot_terminal.png", caption: "Aviation — student pilot", aspect: "portrait" },
-          { src: "/photos/hobby-minecraft.webp", alt: "Custom enchanted armor character in Minecraft", filename: "minecraft.png", caption: "Minecraft — still undefeated at building castles", aspect: "landscape" },
+          { src: "/photos/hobby-minecraft.webp", alt: "Custom enchanted armor character in Minecraft", filename: "minecraft.png", caption: "Minecraft — has a long running maxed out survival world", aspect: "landscape" },
         ],
       },
     ],

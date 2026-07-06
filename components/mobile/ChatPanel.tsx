@@ -18,12 +18,6 @@ import { getFile } from "@/data/archive";
 import { useArchive } from "@/lib/archive-context";
 import { cn } from "@/lib/utils";
 
-const SEED_PROMPTS: readonly { label: string; text: string }[] = [
-  { label: "QUERY_01", text: "What are your most impressive projects?" },
-  { label: "QUERY_02", text: "Walk me through your leadership experience." },
-  { label: "QUERY_03", text: "What capabilities define you?" },
-];
-
 // ─── Milestone overlay: DATA CORRUPTION (3rd prompt) ────────────────────────
 
 function DataCorruptionOverlay({ onDone }: { onDone: () => void }) {
@@ -359,7 +353,7 @@ export default function ChatPanel() {
         className="scroll-system flex-1 overflow-y-auto"
       >
         {messages.length === 0 ? (
-          <EmptyState onSelect={submit} disabled={isStreaming} />
+          <EmptyState />
         ) : (
           <div className="mx-auto flex max-w-2xl flex-col px-4 pb-6">
             {/* Compact core stays at the head of the transcript */}
@@ -528,12 +522,7 @@ function MessageRow({ message, showStreamingCursor }: MessageRowProps) {
   );
 }
 
-interface EmptyStateProps {
-  onSelect: (text: string) => void;
-  disabled: boolean;
-}
-
-function EmptyState({ onSelect, disabled }: EmptyStateProps) {
+function EmptyState() {
   return (
     <div className="mx-auto flex h-full min-h-fit max-w-3xl flex-col items-center justify-center gap-4 px-4 py-6 text-center sm:gap-5">
       <HoloCore size={320} className="sm:hidden" />
@@ -546,25 +535,6 @@ function EmptyState({ onSelect, disabled }: EmptyStateProps) {
         <p className="mt-2.5 hidden font-mono text-[9.5px] uppercase tracking-[0.5em] text-muted sm:block">
           RECONSTRUCTED INTELLIGENCE <span className="text-signal">//</span> QUERY THE ARCHIVE
         </p>
-      </div>
-
-      <div className="scroll-strip -mx-4 flex w-[calc(100%+2rem)] snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:w-auto sm:justify-center sm:overflow-visible sm:px-0">
-        {SEED_PROMPTS.map((p) => (
-          <button
-            key={p.text}
-            type="button"
-            disabled={disabled}
-            onClick={() => onSelect(p.text)}
-            className="clip-chip flicker-on-hover shrink-0 snap-start border border-border bg-panel px-4 py-2.5 text-left transition-colors hover:border-border-hi hover:bg-panel-hi disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <span className="block font-mono text-[8px] tracking-[0.24em] text-muted">
-              {p.label}
-            </span>
-            <span className="mt-0.5 block font-tech text-sm font-semibold tracking-wide text-text">
-              {p.text}
-            </span>
-          </button>
-        ))}
       </div>
     </div>
   );

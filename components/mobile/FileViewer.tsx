@@ -226,7 +226,7 @@ function SectionBlock({ section, openImage }: { section: ArchiveSection; openIma
 }
 
 export default function FileViewer() {
-  const { activeSlug, closeFile, submitPrompt } = useArchive();
+  const { activeSlug, closeFile } = useArchive();
   const file = activeSlug ? getFile(activeSlug) : null;
 
   const [lightbox, setLightbox] = useState<{
@@ -330,35 +330,6 @@ export default function FileViewer() {
                   ))}
                 </div>
 
-                {file.suggestedPrompts && file.suggestedPrompts.length > 0 && (
-                  <footer className="mt-10 border-t border-border pt-5">
-                    <div className="mb-3 font-mono text-xs uppercase tracking-wider text-muted">
-                      SUGGESTED_QUERIES
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {file.suggestedPrompts.map((p) => (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => {
-                            submitPrompt(p);
-                            closeFile();
-                          }}
-                          className={cn(
-                            "rounded-sm border border-border bg-bg-elev px-3 py-1.5 text-left",
-                            "font-mono text-xs text-muted transition-colors",
-                            "motion-reduce:transition-none",
-                            "hover:border-signal/40 hover:text-signal",
-                            "focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60",
-                            "flicker-on-hover",
-                          )}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                    </div>
-                  </footer>
-                )}
               </motion.div>
             </article>
           </motion.div>

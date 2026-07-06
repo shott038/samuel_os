@@ -13,8 +13,8 @@ import {
   type KeyboardEvent,
 } from "react";
 
-import HoloCore from "@/components/HoloCore";
-import SignalDot from "@/components/SignalDot";
+import HoloCore from "@/components/shared/HoloCore";
+import SignalDot from "@/components/shared/SignalDot";
 import { getFile } from "@/data/archive";
 import { useArchive } from "@/lib/archive-context";
 import { cn } from "@/lib/utils";
@@ -543,8 +543,8 @@ interface EmptyStateProps {
 function EmptyState({ onSelect, disabled }: EmptyStateProps) {
   return (
     <div className="mx-auto flex h-full min-h-fit max-w-3xl flex-col items-center justify-center gap-4 px-4 py-6 text-center sm:gap-5">
-      <HoloCore size={230} labels className="sm:hidden" />
-      <HoloCore size={300} labels className="max-sm:hidden" />
+      <HoloCore size={230} className="sm:hidden" />
+      <HoloCore size={300} className="max-sm:hidden" />
 
       <div>
         <h1 className="anim-crt-blip font-disp text-[26px] uppercase tracking-[0.24em] text-signal-active [text-shadow:0_0_22px_rgba(61,212,200,0.45),0_0_60px_rgba(61,212,200,0.18)] sm:text-[38px] sm:tracking-[0.3em]">

@@ -1,30 +1,10 @@
-import LayoutShell from "@/components/LayoutShell";
-import StatusBar from "@/components/StatusBar";
-import LeftPanel from "@/components/LeftPanel";
-import ChatPanel from "@/components/ChatPanel";
-import FileViewer from "@/components/FileViewer";
-import SignalOverlay from "@/components/SignalOverlay";
-import ContactTerminal from "@/components/ContactTerminal";
-export default function Home() {
-  return (
-    <>
-      <LayoutShell
-        status={<StatusBar />}
-        left={<LeftPanel />}
-        right={
-          <>
-            <noscript>
-              <div className="p-6 text-sm text-muted">
-                Samuel OS requires JavaScript to interface with the model.
-              </div>
-            </noscript>
-            <ChatPanel />
-          </>
-        }
-      />
-      <FileViewer />
-      <ContactTerminal />
-      <SignalOverlay />
-    </>
-  );
+import DesktopHome from "@/components/desktop/Home";
+import MobileHome from "@/components/mobile/Home";
+import { detectPlatform } from "@/lib/platform";
+
+// The sniffer decides per-request which component tree the visitor gets —
+// phones never receive desktop markup and vice versa.
+export default async function Home() {
+  const platform = await detectPlatform();
+  return platform === "mobile" ? <MobileHome /> : <DesktopHome />;
 }

@@ -132,96 +132,63 @@ export default function FileExplorer() {
   );
 
   return (
-    <>
-      {/* ── Desktop: vertical shard rail ── */}
-      <nav
-        ref={containerRef}
-        aria-label="Archive"
-        className="scroll-system hidden h-full overflow-y-auto px-5 py-6 md:block"
-      >
-        <RailHeader folderCount={archive.folders.length} />
-        <div role="tree" aria-label="Archive entries" className="flex flex-col">
-          {archiveFolders.map((folder) => (
-            <FolderShard
-              key={folder.slug}
-              folder={folder}
-              fileCount={filesByFolder[folder.slug]?.length ?? 0}
-              isActive={folder.slug === activeFolderSlug}
-              focusedId={focusedId}
-              firstFolderSlug={archive.folders[0]?.slug}
-              openFolder={openFolder}
-              setFocusedId={setFocusedId}
-              handleKey={handleKey}
-            />
-          ))}
+    <nav
+      ref={containerRef}
+      aria-label="Archive"
+      className="scroll-system h-full overflow-y-auto px-5 py-6"
+    >
+      <RailHeader folderCount={archive.folders.length} />
+      <div role="tree" aria-label="Archive entries" className="flex flex-col">
+        {archiveFolders.map((folder) => (
+          <FolderShard
+            key={folder.slug}
+            folder={folder}
+            fileCount={filesByFolder[folder.slug]?.length ?? 0}
+            isActive={folder.slug === activeFolderSlug}
+            focusedId={focusedId}
+            firstFolderSlug={archive.folders[0]?.slug}
+            openFolder={openFolder}
+            setFocusedId={setFocusedId}
+            handleKey={handleKey}
+          />
+        ))}
 
-          {linksFolders.length > 0 && (
-            <>
-              <div className="my-3 flex items-center gap-2 px-2">
-                <div className="h-px flex-1 bg-signal/15" />
-                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-muted/70">
-                  UPLINKS
-                </span>
-                <div className="h-px flex-1 bg-signal/15" />
-              </div>
-              {linksFolders.map((folder) =>
-                folder.slug === "contact_info" ? (
-                  <ContactShard key={folder.slug} onOpen={openContact} />
-                ) : (
-                  <FolderShard
-                    key={folder.slug}
-                    folder={folder}
-                    fileCount={filesByFolder[folder.slug]?.length ?? 0}
-                    isActive={folder.slug === activeFolderSlug}
-                    focusedId={focusedId}
-                    firstFolderSlug={archive.folders[0]?.slug}
-                    openFolder={openFolder}
-                    setFocusedId={setFocusedId}
-                    handleKey={handleKey}
-                  />
-                ),
-              )}
-            </>
-          )}
-        </div>
-      </nav>
-
-      {/* ── Mobile: horizontal shard strip ── */}
-      <nav aria-label="Archive" className="px-4 pb-4 pt-3.5 md:hidden">
-        <RailHeader folderCount={archive.folders.length} compact />
-        <div className="scroll-strip -mx-4 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-1">
-          {archive.folders.map((folder) => {
-            const fileCount = filesByFolder[folder.slug]?.length ?? 0;
-            const isActive = folder.slug === activeFolderSlug;
-            if (folder.slug === "contact_info") {
-              return <ContactShard key={folder.slug} onOpen={openContact} mobile />;
-            }
-            return (
-              <button
-                key={folder.slug}
-                type="button"
-                onClick={() => openFolder(folder.slug)}
-                className={cn(
-                  "clip-shard relative min-w-[11.5rem] shrink-0 snap-start border bg-panel p-3 text-left transition-colors",
-                  isActive
-                    ? "border-info/50"
-                    : "border-border active:border-border-hi",
-                )}
-                style={isActive ? { background: "rgba(38,28,10,0.35)" } : undefined}
-              >
-                <ShardCardBody folder={folder} fileCount={fileCount} isActive={isActive} />
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-    </>
+        {linksFolders.length > 0 && (
+          <>
+            <div className="my-3 flex items-center gap-2 px-2">
+              <div className="h-px flex-1 bg-signal/15" />
+              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-muted/70">
+                UPLINKS
+              </span>
+              <div className="h-px flex-1 bg-signal/15" />
+            </div>
+            {linksFolders.map((folder) =>
+              folder.slug === "contact_info" ? (
+                <ContactShard key={folder.slug} onOpen={openContact} />
+              ) : (
+                <FolderShard
+                  key={folder.slug}
+                  folder={folder}
+                  fileCount={filesByFolder[folder.slug]?.length ?? 0}
+                  isActive={folder.slug === activeFolderSlug}
+                  focusedId={focusedId}
+                  firstFolderSlug={archive.folders[0]?.slug}
+                  openFolder={openFolder}
+                  setFocusedId={setFocusedId}
+                  handleKey={handleKey}
+                />
+              ),
+            )}
+          </>
+        )}
+      </div>
+    </nav>
   );
 }
 
-function RailHeader({ folderCount, compact }: { folderCount: number; compact?: boolean }) {
+function RailHeader({ folderCount }: { folderCount: number }) {
   return (
-    <div className={compact ? "mb-2.5" : "mb-5"}>
+    <div className="mb-5">
       <div className="flex items-center gap-2.5 font-tech text-[12px] font-semibold uppercase tracking-[0.42em] text-muted">
         Memory Shards
         <span
@@ -229,11 +196,9 @@ function RailHeader({ folderCount, compact }: { folderCount: number; compact?: b
           style={{ background: "linear-gradient(90deg, rgba(61,212,200,0.35), transparent)" }}
         />
       </div>
-      {!compact && (
-        <div className="mt-1 font-mono text-[9px] tracking-[0.2em] text-muted/70">
-          {folderCount} SECTORS RECOVERED · 1 DECRYPTING
-        </div>
-      )}
+      <div className="mt-1 font-mono text-[9px] tracking-[0.2em] text-muted/70">
+        {folderCount} SECTORS RECOVERED · 1 DECRYPTING
+      </div>
     </div>
   );
 }
@@ -352,15 +317,14 @@ function FolderShard({
   );
 }
 
-function ContactShard({ onOpen, mobile }: { onOpen: () => void; mobile?: boolean }) {
+function ContactShard({ onOpen }: { onOpen: () => void }) {
   return (
     <button
       type="button"
       onClick={onOpen}
       aria-label="Open encrypted contact uplink"
       className={cn(
-        "clip-shard group relative border border-info/40 p-3 text-left transition-colors hover:border-info/70",
-        mobile ? "min-w-[11.5rem] shrink-0 snap-start" : "mb-2 w-full",
+        "clip-shard group relative mb-2 w-full border border-info/40 p-3 text-left transition-colors hover:border-info/70",
         "focus:outline-none focus-visible:ring-1 focus-visible:ring-info/60",
       )}
       style={{ background: "rgba(38,28,10,0.30)" }}

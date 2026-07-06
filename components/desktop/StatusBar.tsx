@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import SignalDot from "./SignalDot";
+import SignalDot from "@/components/shared/SignalDot";
 import { ARCHIVE } from "@/data/archive";
 import { cn } from "@/lib/utils";
 
@@ -95,19 +95,19 @@ export default function StatusBar() {
 
   return (
     <div className={cn(
-      "anim-scan relative z-10 flex items-center gap-3 border-b border-border px-3 py-2.5 font-mono text-[0.6rem] tracking-wider text-muted sm:gap-6 sm:px-6 sm:text-[0.68rem]",
+      "anim-scan relative z-10 flex items-center gap-6 border-b border-border px-6 py-2.5 font-mono text-[0.68rem] tracking-wider text-muted",
       glitching && "anim-glitch-hard",
     )}
     style={{ background: "linear-gradient(180deg, rgba(4,13,16,0.9), rgba(4,13,16,0.4))" }}
     >
       {/* brand */}
-      <span className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3 md:flex-initial">
-        <span className="relative block size-4 rotate-45 border border-border-hi sm:size-5" aria-hidden>
-          <span className="anim-core-pulse absolute inset-[4px] bg-signal shadow-[0_0_12px_var(--brand-signal)] sm:inset-[5px]" />
+      <span className="flex items-center gap-3">
+        <span className="relative block size-5 rotate-45 border border-border-hi" aria-hidden>
+          <span className="anim-core-pulse absolute inset-[5px] bg-signal shadow-[0_0_12px_var(--brand-signal)]" />
         </span>
         <span className="flex min-w-0 flex-col leading-tight">
           <span className={cn(
-            "truncate font-disp text-[8px] tracking-[0.1em] min-[480px]:text-[10px] min-[480px]:tracking-[0.22em] sm:text-[11px] sm:tracking-[0.3em]",
+            "truncate font-disp text-[11px] tracking-[0.3em]",
             !isLost && !isReconnecting && "text-signal-active",
             isWeak && "anim-sig-weak text-warn",
             isLost && "anim-sig-lost text-crit",
@@ -123,34 +123,33 @@ export default function StatusBar() {
 
       {/* waveform */}
       <svg
-        className="hud-wave h-6 min-w-16 flex-1 opacity-85 max-md:hidden"
+        className="hud-wave h-6 min-w-16 flex-1 opacity-85"
         viewBox="0 0 400 26"
         preserveAspectRatio="none"
         aria-hidden
       >
         <polyline points="0,13 20,13 26,4 32,22 38,13 70,13 80,9 90,17 100,13 150,13 158,2 166,24 174,13 220,13 232,8 244,18 256,13 300,13 310,5 320,21 330,13 400,13" />
       </svg>
-      <span className="flex-1 md:hidden" />
 
       <span className={cn(
-        "flex items-center gap-1.5 uppercase sm:gap-2",
+        "flex items-center gap-2 uppercase",
         isWeak && "anim-sig-weak",
         isLost && "anim-sig-lost",
       )}>
-        <span className="max-sm:hidden">archive_integrity</span>
+        <span>archive_integrity</span>
         <span className="text-info-hot">
           {isLost ? "--%" : isReconnecting ? "??" : `${integrity}%`}
         </span>
       </span>
 
-      <span className="hidden items-center gap-2 uppercase md:flex">
+      <span className="flex items-center gap-2 uppercase">
         mem_shards <span className="text-info-hot">{SHARD_COUNT}</span>
       </span>
 
       <span className="flex items-center gap-2 uppercase">
         <SignalDot tone={tone} pulse={!isLost} />
         <span className={cn(
-          "text-signal max-sm:hidden",
+          "text-signal",
           isWeak && "anim-sig-weak text-warn",
           isLost && "anim-sig-lost text-crit",
           isReconnecting && "anim-reconnect text-muted",

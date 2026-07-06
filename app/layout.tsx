@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, IBM_Plex_Mono, Michroma, Rajdhani } from "next/font/google";
 import "./globals.css";
 import { ArchiveProvider } from "@/lib/archive-context";
-import BootSequence from "@/components/BootSequence";
-import SceneBackdrop from "@/components/SceneBackdrop";
+import SceneBackdrop from "@/components/shared/SceneBackdrop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,8 +55,8 @@ export default function RootLayout({
           <style>{`#boot-overlay{display:none}`}</style>
         </noscript>
         <SceneBackdrop />
+        {/* BootSequence lives inside each platform tree (desktop/mobile Home) */}
         <ArchiveProvider>
-          <BootSequence />
           {children}
         </ArchiveProvider>
       </body>

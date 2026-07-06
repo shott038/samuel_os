@@ -111,17 +111,9 @@ function SectionBlock({ section, openImage }: { section: ArchiveSection; openIma
       section.aspect === "portrait" ? "aspect-[3/4]" :
       section.aspect === "square"   ? "aspect-square" :
       "aspect-[4/3]";
-    const size = section.size ?? (section.align === "center" ? "md" : "md");
-    const widthClass =
-      section.align === "right" || section.align === "left"
-        ? (size === "xs" ? "md:w-1/5" : size === "sm" ? "md:w-1/4" : size === "lg" ? "md:w-2/5" : "md:w-1/3")
-        : (size === "xs" ? "md:w-1/4" : size === "sm" ? "md:w-1/3" : size === "lg" ? "md:w-3/4" : "md:w-1/2");
-    const floatClass =
-      section.align === "right"  ? cn("md:float-right md:ml-5 md:mb-3", widthClass) :
-      section.align === "left"   ? cn("md:float-left md:mr-5 md:mb-3", widthClass) :
-      cn("mx-auto", widthClass);
+    // Phones get full-width images — no float/width treatments.
     return (
-      <figure className={cn("mb-5", floatClass)}>
+      <figure className="mb-5">
         <button
           type="button"
           aria-label={`View ${section.alt} full size`}
@@ -162,19 +154,14 @@ function SectionBlock({ section, openImage }: { section: ArchiveSection; openIma
       section.size === "sm" ? "max-w-md" :
       section.size === "md" ? "max-w-2xl" :
       "";
-    const cols = section.columns ?? 2;
-    const colsClass =
-      cols === 4 ? "sm:grid-cols-2 md:grid-cols-4" :
-      cols === 3 ? "sm:grid-cols-2 md:grid-cols-3" :
-      "sm:grid-cols-2";
     return (
-      <div className={cn("mb-6 clear-both", maxW)}>
+      <div className={cn("mb-6", maxW)}>
         {section.heading && (
           <p className="mb-3 font-mono text-xs uppercase tracking-wider text-muted">
             {section.heading}
           </p>
         )}
-        <div className={cn("grid grid-cols-1 gap-3", colsClass)}>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {section.images.map((img, i) => {
             const cellAspect =
               img.aspect === "portrait" ? "aspect-[3/4]" :
@@ -296,11 +283,7 @@ export default function FileViewer() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="file-viewer-title"
-            className={cn(
-              "fixed inset-x-4 inset-y-4 z-50",
-              "md:inset-x-20 md:inset-y-8",
-              "flex flex-col overflow-hidden rounded-md border border-border bg-bg shadow-2xl",
-            )}
+            className="fixed inset-x-4 inset-y-4 z-50 flex flex-col overflow-hidden rounded-md border border-border bg-bg shadow-2xl"
           >
             <div className="flex shrink-0 items-center gap-3 border-b border-border bg-bg-deep px-5 py-3">
               <button

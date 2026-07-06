@@ -11,23 +11,23 @@ export default function LayoutShell({ left, right, status }: Props) {
     <div className="terminal-glow relative z-[5] flex h-dvh flex-col">
       {status}
 
-      <div className="flex min-h-0 flex-1 flex-col md:grid md:grid-cols-[minmax(0,20rem)_1fr_3.5rem]">
-        {/* Stage first in DOM for mobile order; grid places it via md:order */}
-        <section className="order-1 min-h-0 flex-1 overflow-hidden md:order-2">
-          {right}
-        </section>
-
-        {/* Archive: desktop = left rail; mobile = bottom strip */}
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,20rem)_1fr_3.5rem]">
+        {/* Archive: left rail */}
         <section
-          className="order-2 min-h-0 shrink-0 border-t border-border md:order-1 md:block md:border-r md:border-t-0"
+          className="min-h-0 border-r border-border"
           style={{ background: "linear-gradient(180deg, rgba(6,17,20,0.72), rgba(6,17,20,0.25))" }}
         >
           {left}
         </section>
 
-        {/* Telemetry spine (desktop only) */}
+        {/* Stage */}
+        <section className="min-h-0 overflow-hidden">
+          {right}
+        </section>
+
+        {/* Telemetry spine */}
         <aside
-          className="order-3 hidden flex-col items-center gap-4 border-l border-border py-5 md:flex"
+          className="flex flex-col items-center gap-4 border-l border-border py-5"
           style={{ background: "linear-gradient(180deg, rgba(6,17,20,0.7), rgba(6,17,20,0.3))" }}
           aria-hidden
         >

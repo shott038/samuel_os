@@ -1,29 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  /* ── SOS v2 "Deep Archive" palette ── */
-  --brand-bg-deep: #020608;
-  --brand-bg: #040d10;
-  --brand-bg-elev: #0e2226;
+  /* ── SOS v2 "Deep Archive" palette (brightened pass) ── */
+  --brand-bg-deep: #04090c;
+  --brand-bg: #071316;
+  --brand-bg-elev: #132b30;
 
-  --brand-signal: #3dd4c8;
-  --brand-signal-active: #8ff7ee;
+  --brand-signal: #4fe3d7;
+  --brand-signal-active: #a2fbf3;
 
-  --brand-info: #c89020;
-  --brand-info-muted: #886020;
-  --brand-info-hot: #e8b84b;
+  --brand-info: #d9a232;
+  --brand-info-muted: #9a7230;
+  --brand-info-hot: #f4c75e;
 
-  --brand-text-muted: #4e7c7a;
-  --brand-border: rgba(61, 212, 200, 0.14);
-  --brand-border-hi: rgba(61, 212, 200, 0.35);
+  --brand-text-muted: #639996;
+  --brand-border: rgba(79, 227, 215, 0.2);
+  --brand-border-hi: rgba(79, 227, 215, 0.45);
 
-  --brand-warn: #e07828;
-  --brand-crit: #e04030;
+  --brand-warn: #ea8838;
+  --brand-crit: #ea5040;
 
-  --brand-text: #c9dedd;
+  --brand-text: #ddeceb;
 
-  --brand-panel: rgba(10, 26, 30, 0.52);
-  --brand-panel-hi: rgba(16, 38, 42, 0.65);
+  --brand-panel: rgba(14, 34, 39, 0.52);
+  --brand-panel-hi: rgba(22, 48, 53, 0.65);
 }
 
 /* Boot overlay: hidden pre-paint on repeat visits (attribute set by the
@@ -81,8 +81,8 @@ body::after {
   z-index: 41;
   background: radial-gradient(
     ellipse 80% 72% at 50% 48%,
-    transparent 35%,
-    rgba(1, 5, 7, 0.72) 100%
+    transparent 45%,
+    rgba(1, 5, 7, 0.5) 100%
   );
 }
 
@@ -96,10 +96,10 @@ body::after {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 42% at 50% 78%, rgba(61, 212, 200, 0.13) 0%, transparent 60%),
-    radial-gradient(ellipse 90% 60% at 50% 115%, rgba(32, 232, 220, 0.1) 0%, transparent 55%),
-    radial-gradient(ellipse 120% 90% at 50% -20%, rgba(4, 18, 22, 0.9) 0%, transparent 70%),
-    linear-gradient(180deg, #020608 0%, #041014 55%, #062024 100%);
+    radial-gradient(ellipse 60% 42% at 50% 78%, rgba(61, 212, 200, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 60% at 50% 115%, rgba(32, 232, 220, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 120% 90% at 50% -20%, rgba(6, 24, 29, 0.9) 0%, transparent 70%),
+    linear-gradient(180deg, #04090c 0%, #061518 55%, #082a2f 100%);
 }
 
 .scene-floor {
@@ -111,8 +111,8 @@ body::after {
   z-index: 0;
   pointer-events: none;
   background:
-    repeating-linear-gradient(90deg, rgba(61, 212, 200, 0.1) 0 1px, transparent 1px 90px),
-    repeating-linear-gradient(0deg, rgba(61, 212, 200, 0.09) 0 1px, transparent 1px 46px);
+    repeating-linear-gradient(90deg, rgba(61, 212, 200, 0.14) 0 1px, transparent 1px 90px),
+    repeating-linear-gradient(0deg, rgba(61, 212, 200, 0.12) 0 1px, transparent 1px 46px);
   transform: perspective(620px) rotateX(63deg);
   transform-origin: 50% 0%;
   mask-image: radial-gradient(ellipse 55% 90% at 50% 0%, black 25%, transparent 75%);
@@ -186,14 +186,14 @@ body::after {
 /* static filter + opacity-only pulse: animating filter() re-rasterizes the
    image every frame; opacity runs on the compositor for free */
 .hologram-idle {
-  filter: saturate(1.15) brightness(1.05);
+  filter: saturate(1.15) brightness(1.18);
   animation: hologram-pulse 4s ease-in-out infinite;
 }
 @keyframes hologram-pulse {
-  0%, 100% { opacity: 0.62; }
-  30%      { opacity: 0.48; }
-  60%      { opacity: 0.68; }
-  80%      { opacity: 0.52; }
+  0%, 100% { opacity: 0.72; }
+  30%      { opacity: 0.58; }
+  60%      { opacity: 0.78; }
+  80%      { opacity: 0.62; }
 }
 
 /* wordmark CRT flicker */
@@ -288,9 +288,9 @@ body::after {
 
 .terminal-glow {
   box-shadow:
-    0 0 0 1px rgba(61, 212, 200, 0.18),
-    0 0 30px rgba(61, 212, 200, 0.07),
-    inset 0 0 60px rgba(0, 0, 0, 0.25);
+    0 0 0 1px rgba(61, 212, 200, 0.26),
+    0 0 30px rgba(61, 212, 200, 0.12),
+    inset 0 0 60px rgba(0, 0, 0, 0.18);
 }
 
 @media (prefers-reduced-motion: reduce) {

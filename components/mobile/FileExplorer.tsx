@@ -44,6 +44,14 @@ export default function FileExplorer() {
     return archive.files.find((f) => f.slug === activeSlug)?.folder ?? null;
   }, [activeSlug, archive.files]);
 
+  // Mobile-only: surface the contact shard first so visitors who just want
+  // Samuel's contact info see it without swiping. Desktop keeps source order.
+  const orderedFolders = useMemo(() => {
+    const contact = archive.folders.filter((f) => f.slug === "contact_info");
+    const rest = archive.folders.filter((f) => f.slug !== "contact_info");
+    return [...contact, ...rest];
+  }, [archive.folders]);
+
   // Every folder holds exactly one overview file — tapping the shard opens
   // it directly, no expand-then-select step.
   const openFolder = useCallback(
@@ -74,7 +82,7 @@ export default function FileExplorer() {
       <StripHeader folderCount={archive.folders.length} />
       <div className="relative -mx-4">
         <div ref={stripRef} className="scroll-strip flex snap-x snap-proximity gap-2.5 overflow-x-auto px-4 pb-1">
-          {archive.folders.map((folder) => {
+          {orderedFolders.map((folder) => {
             const fileCount = filesByFolder[folder.slug]?.length ?? 0;
             const isActive = folder.slug === activeFolderSlug;
             if (folder.slug === "contact_info") {

@@ -13,6 +13,8 @@ const UNLOCK_KEY = "sos_contact_unlocked";
 const CONTACT = {
   email: "samuel.schoettker4@gmail.com",
   location: "West Palm Beach, FL",
+  linkedin: "https://www.linkedin.com/in/samuel-schoettker-700b05264",
+  linkedinHandle: "samuel-schoettker",
 } as const;
 
 interface BreachLine {
@@ -271,6 +273,21 @@ export default function ContactTerminal() {
                   >
                     {copied ? <Check className="size-3.5 text-signal" /> : <Copy className="size-3.5" />}
                   </button>
+                </div>
+
+                <div className="flex items-center gap-3 border border-border bg-panel px-4 py-3">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className="size-4 shrink-0 text-signal"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono text-[8px] uppercase tracking-[0.28em] text-muted">LINKEDIN</p>
+                    <a
+                      href={CONTACT.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block truncate font-mono text-sm text-signal-active underline-offset-4 hover:underline"
+                    >
+                      {CONTACT.linkedinHandle}
+                    </a>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3 border border-border bg-panel px-4 py-3">

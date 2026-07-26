@@ -7,7 +7,8 @@ export type ArchiveSection =
   | { kind: "stat_row"; stats: Array<{ label: string; value: string }> }
   | { kind: "contact_block"; email: string; phone: string; location: string }
   | { kind: "image"; src: string; alt: string; caption?: string; filename?: string; aspect?: "portrait" | "landscape" | "square"; align?: "left" | "right" | "center"; size?: "xs" | "sm" | "md" | "lg" }
-  | { kind: "image_gallery"; heading?: string; size?: "sm" | "md" | "lg"; columns?: 2 | 3 | 4; images: Array<{ src: string; alt: string; filename?: string; caption?: string; aspect?: "portrait" | "landscape" | "square" }> };
+  | { kind: "image_gallery"; heading?: string; size?: "sm" | "md" | "lg"; columns?: 2 | 3 | 4; images: Array<{ src: string; alt: string; filename?: string; caption?: string; aspect?: "portrait" | "landscape" | "square" }> }
+  | { kind: "video"; src: string; poster?: string; caption?: string; filename?: string; size?: "sm" | "md" | "lg" | "full" };
 
 export type ArchiveFolderSlug =
   | "wiring"
@@ -194,10 +195,10 @@ const FILES: readonly ArchiveFile[] = [
       {
         kind: "project",
         title: "TortBot",
-        subtitle: "AI agent — 2025–present",
+        subtitle: "AI marketing + intake system — May 2026–present",
         body:
-          "An AI agent that builds LLM-citable online presence for small law firms. It scouts the news daily, pitches relevant stories to the attorney for approval, then writes and publishes long-form articles plus social teasers — optimized for Answer Engine Optimization. The goal: when someone asks an AI assistant for a local lawyer recommendation, TortBot's clients surface in the answer.",
-        tags: ["AI Agents", "AEO", "Content Automation", "Python"],
+          "The AEO and intake system running my dad's law firm in Montgomery, Alabama. A desktop app he opens and a headless service on the office's always-on PC: it scouts the news daily, pitches a story for his approval, then drafts in his voice and publishes to the website and socials — nothing goes out until a human says yes. Also tracks what five AI engines say about Alabama personal injury law, and handles intake end to end. Built solo in 61 days. See the full case study in this folder.",
+        tags: ["AI Agents", "AEO", "Python", "FastAPI", "Supabase", "Claude Code"],
       },
       {
         kind: "project",
@@ -312,7 +313,7 @@ const FILES: readonly ArchiveFile[] = [
         kind: "list",
         heading: "Where agents are doing real work for me right now",
         items: [
-          "TortBot — an AI agent I built end-to-end for a law firm: it scouts news daily, pitches a story for approval, then writes, formats, and publishes the piece plus social teasers itself. Full pipeline, zero manual steps once it's approved. AEO, not SEO — the goal is showing up when someone asks an AI for a lawyer recommendation.",
+          "TortBot — the AEO and intake system I built end-to-end for a law firm in 61 days: it scouts news daily, pitches a story for approval, then writes, formats, and publishes the piece plus social teasers itself. Zero manual steps once the attorney approves — and nothing publishes until he does. AEO, not SEO: the goal is showing up when someone asks an AI for a lawyer recommendation.",
           "Swing trading agent — trades a defined universe of equities. I set the intent and risk tolerance; it researches, signals, and manages the position without collapsing everything into a fixed stop-loss and walking away.",
           "SideQuestr — the map-first social coordination app all this machinery actually builds. ~50-person beta forming, shipped at roughly 940 lines of Swift a day.",
           "Kai — the system managing all of the above, plus my calendar, contacts, and a daily brief that lands on my phone before I'm awake.",
@@ -611,6 +612,75 @@ const FILES: readonly ArchiveFile[] = [
       "How can I contact Samuel?",
       "What's the best way to reach out to him?",
       "Is Samuel open to new opportunities?",
+    ],
+  },
+  {
+    slug: "tortbot",
+    filename: "tortbot_case_study",
+    title: "TortBot — Case Study",
+    description:
+      "Two months, one person: the AEO and intake system running a Montgomery law firm.",
+    folder: "builds",
+    sections: [
+      {
+        kind: "text",
+        body:
+          "Two months ago I was tasked with building AEO for my dad's law firm — get the firm cited by AI, bring in more cases, and ultimately help more people and make more money. I decided that meant two things: prepare the firm for AEO from the ground up, and build the software in-house instead of renting it, cutting the subscription overhead at the same time.",
+      },
+      {
+        kind: "text",
+        body:
+          "Today it's running. TortBot is the AI marketing and intake system for Barfoot & Schoettker in Montgomery, Alabama. Backend, desktop app, website, every integration — I built all of it.",
+      },
+      {
+        kind: "video",
+        src: "/media/tortbot-showcase.mp4",
+        poster: "/media/tortbot-showcase-poster.jpg",
+        filename: "tortbot_showcase.mp4",
+        caption: "A walkthrough of the running system. All client records shown are demo data.",
+      },
+      {
+        kind: "stat_row",
+        stats: [
+          { label: "Build time", value: "61 days" },
+          { label: "Commits", value: "509" },
+          { label: "Lines", value: "~78,000" },
+          { label: "Automated tests", value: "1,891" },
+        ],
+      },
+      {
+        kind: "list",
+        heading: "What that took",
+        items: [
+          "Two deployables — a lightweight desktop app my dad opens, and a headless service running around the clock on the office's always-on PC doing the scouting, drafting and publishing. They share nothing but a database.",
+          "11 external services wired into one system — Anthropic, OpenAI, Gemini, Perplexity and Grok for the models; Clio for case management; X for publishing; Supabase for data; Cloudflare for deploys; Gmail for intake; IndexNow for search.",
+          "OAuth 1.0a implemented straight against the spec instead of pulling in a library — one less dependency to babysit on an office PC.",
+          "An AEO-first website rebuild, structured so language models can actually read and quote it.",
+          "A content engine that scouts the news daily, drafts in my dad's voice, and won't publish a word until a human approves it.",
+          "A measurement layer that asks five AI engines the same question set every run and logs every answer, its sources, and which competitors got named.",
+          "An intake CRM with automated follow-up, appointment booking, and Clio hand-off.",
+        ],
+      },
+      {
+        kind: "text",
+        body:
+          "Built with Claude Code and modern AI tooling. I didn't know most of this stack in May — I learned it because the goal required it.",
+      },
+      {
+        kind: "text",
+        body:
+          "That's the part worth taking from it. Not the tech — the fact that I can be handed a vision with no map to it, work out what it actually needs, and go ship it. Making a dozen systems that were never designed to talk to each other behave like one product is the job. So is knowing what not to build.",
+      },
+      {
+        kind: "text",
+        body:
+          "If the skills required to build this interest you, the contact folder has the fastest way to reach me.",
+      },
+    ],
+    suggestedPrompts: [
+      "How did Samuel wire 11 different services into one system?",
+      "What is AEO and why did he build for it instead of SEO?",
+      "Why does a human have to approve everything TortBot writes?",
     ],
   },
 ];

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { useArchive } from "@/lib/archive-context";
-import { getFile, type ArchiveSection } from "@/data/archive";
+import { ARCHIVE, getFile, type ArchiveSection } from "@/data/archive";
 import { cn } from "@/lib/utils";
 
 type OpenImage = (img: { src: string; alt: string; filename?: string; caption?: string }) => void;
@@ -235,12 +235,46 @@ function SectionBlock({ section, openImage }: { section: ArchiveSection; openIma
     );
   }
 
+  if (section.kind === "video") {
+    const size = section.size ?? "full";
+    const widthClass =
+      size === "sm" ? "w-1/2" : size === "md" ? "w-2/3" : size === "lg" ? "w-5/6" : "w-full";
+    return (
+      <figure className={cn("mb-5 mx-auto", widthClass)}>
+        <div className="relative overflow-hidden rounded-sm border border-border bg-bg-deep">
+          <video
+            src={section.src}
+            poster={section.poster}
+            controls
+            preload="metadata"
+            playsInline
+            className="block h-auto w-full"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent_0px,transparent_2px,rgba(61,212,200,0.04)_2px,rgba(61,212,200,0.04)_3px)] mix-blend-overlay" />
+          {section.filename && (
+            <span className="pointer-events-none absolute left-2 top-2 rounded-sm bg-bg-deep/85 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-signal/80">
+              [ {section.filename} ]
+            </span>
+          )}
+        </div>
+        {section.caption && (
+          <figcaption className="mt-2 font-mono text-xs text-muted">
+            ▸ {section.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
   return null;
 }
 
 export default function FileViewer() {
-  const { activeSlug, closeFile, submitPrompt } = useArchive();
+  const { activeSlug, closeFile, submitPrompt, openFile } = useArchive();
   const file = activeSlug ? getFile(activeSlug) : null;
+  // Folders can hold more than one file; the rail only opens the first, so the
+  // viewer exposes its siblings.
+  const siblings = file ? ARCHIVE.files.filter((f) => f.folder === file.folder) : [];
 
   const [lightbox, setLightbox] = useState<{
     src: string;
@@ -335,6 +369,28 @@ export default function FileViewer() {
                     {file.title}
                   </h1>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{file.description}</p>
+                  {siblings.length > 1 && (
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <span className="font-mono text-xs uppercase tracking-wider text-muted/70">
+                        SECTOR_FILES
+                      </span>
+                      {siblings.map((s) => (
+                        <button
+                          key={s.slug}
+                          type="button"
+                          onClick={() => openFile(s.slug)}
+                          className={cn(
+                            "rounded-sm border px-3 py-1 font-mono text-sm transition-colors",
+                            s.slug === file.slug
+                              ? "border-signal/60 bg-signal/10 text-signal"
+                              : "border-border text-muted hover:border-signal/40 hover:text-text",
+                          )}
+                        >
+                          {s.filename}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </header>
 
                 <div className="mt-6 border-t border-border pt-2">

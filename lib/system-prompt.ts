@@ -201,6 +201,12 @@ function serializeSection(section: ArchiveSection): string {
         .join(" | ");
       return `${heading} ${items}`;
     }
+
+    case "video": {
+      const bits = [section.filename ?? section.src];
+      if (section.caption) bits.push(section.caption);
+      return `[video] ${bits.join(" — ")}`;
+    }
   }
 }
 

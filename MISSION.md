@@ -12,16 +12,16 @@ Make folders real. A folder holds an overview file (opens by default) plus any n
 
 This is pure plumbing — do NOT rewrite, reword, or trim any existing archive copy. Every section body, list item, prompt, image and video currently in `data/archive.ts` must survive byte-identical.
 
-## Key files
-- `data/archive.ts` (696 lines) — the flat `FOLDERS` + `FILES` arrays, `ARCHIVE`, `getFile`, `getFilesInFolder`
-- `lib/archive-context.tsx` — `activeSlug`, `openFile`, `#file-<slug>` hash routing, popstate handling
-- `components/desktop/FileExplorer.tsx` — shard rail, `openFolder` takes `[0]`, `Row` type + keyboard tree nav
-- `components/mobile/FileExplorer.tsx` — horizontal shard strip, same `[0]` assumption
-- `components/desktop/FileViewer.tsx` — modal, `siblings.length > 1` SECTOR_FILES pill row (lines ~272-400), `SectionBlock` renderer
-- `components/mobile/FileViewer.tsx` — same, mobile modal
-- `lib/system-prompt.ts` — `serializeArchive` iterates `archive.files` flat; `buildSystemPrompt` takes activeFile{Title,Slug,Folder}
-- `app/api/chat/route.ts` — imports `ARCHIVE`, `getFile`
-- `components/desktop/StatusBar.tsx` — `SHARD_COUNT = ARCHIVE.folders.length`
+## Key files (as landed)
+- `data/archive/` — replaces the old flat `data/archive.ts`. `types.ts`, `index.ts` (assembles `ARCHIVE`, exports `getFile`/`getFolder`/`getOverview`/`getFilesInFolder`/`resolvePath`/`filePath`/`fileLabel`/`ARCHIVE_FOLDERS`), plus one module per folder each exporting `{ folder, files }`. `@/data/archive` still resolves via the directory index, so no import churn.
+- `lib/archive-nav.ts` — NEW. Shared selectors: `FOLDER_ENTRIES`, `folderEntries(section?)`, `folderEntry`, `siblingsOf`, `recordBadge`, `fileLabel`, `folderGlyph`. Both platforms read from here.
+- `lib/archive-context.tsx` — adds `activeFolderSlug` + `openFolder`; hash is now `#/builds/tortbot` with a back-compat reader for `#file-<slug>` that normalizes the URL in place.
+- `components/desktop/FileExplorer.tsx` — expandable shards, child rows, full keyboard tree (`Row` gained `fileSlug`). Expansion state is derived during render (no effect) to stay off the `set-state-in-effect` lint rule.
+- `components/mobile/FileExplorer.tsx` — `02 RECORDS` chip on multi-file shards; strip layout untouched.
+- `components/desktop/FileViewer.tsx` — SECTOR_FILES pill row gone, replaced by the `FileTray` left rail. Modal keys off `"viewer"`, content pane keys off `file.slug`.
+- `components/mobile/FileViewer.tsx` — segmented file strip between header and scroll region; same key rework.
+- `lib/system-prompt.ts` — `serializeArchive` groups by folder under `## FOLDER` headers; viewer context lists the active folder's siblings. contact_info excluded in both places.
+- Untouched: `app/api/chat/route.ts`, `components/desktop/StatusBar.tsx` (both imports still resolve).
 
 Desktop and mobile components are fully duplicated with zero shared code — every UI change is two files.
 
@@ -97,4 +97,31 @@ Add a thin `lib/archive-nav.ts` holding the selectors both platforms need (order
 - Pushing, rebasing, or opening a PR — the operator handles landing.
 
 ## Status
-Status: in-progress
+Status: ready-to-merge
+
+## Verification
+- Build: pass (`npm run build`, TypeScript strict, clean)
+- Tests: n/a (no test suite in this project) — lint run instead: `npx eslint .` reports 18 errors / 6 warnings, byte-for-byte the same rule+file set as `main`. Zero new lint problems.
+- Scope kept: yes, with two judgment calls noted below.
+- Summary: sectors are real folders; per-folder data modules, expandable desktop rail, desktop left tray, mobile file strip, and folder-grouped chatbot context all landed with archive copy unchanged.
+
+### Copy integrity
+Proven, not assumed: before deleting `data/archive.ts` I diffed the new `ARCHIVE` against the old one field-by-field (ignoring only the new `label`/`badge`/`order`/`overviewSlug` keys) — 11 files and 10 folders identical. `git diff main -- data/` shows only the file-move churn.
+
+### Verified in the browser (agent-browser against `npm run dev`)
+Desktop 1600x1000 and mobile via an iPhone UA (platform detection is server-side UA sniffing, not viewport — `lib/platform.ts`):
+- Rail shard opens the overview in one click and expands in place: `├─ builds_overview` / `└─ tortbot_case_study` with the CASE STUDY badge.
+- Keyboard tree: Down walks rows, Right expands, Down×2 reaches the child, Enter opens it, Left collapses and returns focus to the parent.
+- Desktop tray switches files without re-mounting the modal — confirmed by stamping the dialog node and checking identity survives the switch.
+- Mobile viewer shows `/BUILDS 02 RECORDS` + OVERVIEW/TORTBOT pills pinned under the header, outside the scroll region.
+- `#file-tortbot` and `#file-how-i-think-overview` resolve and rewrite to `#/builds/tortbot` / `#/wiring/how-i-think-overview`. Back button restores the previous file and closes on the no-hash entry.
+- Chatbot serialization verified by running `serializeArchive` directly: folders grouped, `/builds` reports 2 records, contact_info absent.
+
+### Judgment calls (flagging, not hiding)
+1. **Rail expansion persists after the viewer closes.** The mission says "active folder auto-expands; others collapse". Collapsing on close made the feature invisible — the desktop modal is `inset-x-20` and covers the rail, so the tree could only ever be seen while nothing was covering it. The expanded sector now stays open after Escape. Easy to revert if you want strict collapse.
+2. **`folderGlyph` moved into `lib/archive-nav.ts`.** The glyph map was duplicated across both explorers and the new viewer tray needed it too — a fourth copy was worse than one shared lookup. Not JSX, so it doesn't violate "layouts stay separate".
+
+## Final notes
+- `@/data/archive` resolves to `data/archive/index.ts`; `data/archive.ts` is deleted. Any branch that edits the old flat file will conflict as a delete/modify — reapply the change to the relevant `data/archive/<folder>.ts` module instead.
+- Both FileViewers changed the modal's `key` from `file.slug` to a constant. A branch touching viewer animation needs to keep that or the tray/strip starts replaying the open animation on every file switch.
+- `[[OPEN:folder/file]]` chat deep-links stayed out of scope as specified — `resolvePath("builds/tortbot")` is already in place for whoever picks that up.

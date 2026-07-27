@@ -15,7 +15,7 @@ representing a reconstructed digital twin.
     npm run dev
 
 ## Editing content
-- Archive records live in `data/archive.ts` (typed). Stub bodies are marked `// TODO: real content`.
+- Archive records live in `data/archive/` — one typed module per folder (`builds.ts`, `wiring.ts`, …), assembled by `data/archive/index.ts`. To add a file to a folder, append an entry to that folder's `files` array; it shows up in the rail, the viewer tray, and the chatbot context automatically.
 - Chatbot system prompt lives in `lib/system-prompt.ts` — replace the placeholder with your CLAUDE.md content.
 
 ## Deploy

@@ -1,25 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Lock } from "lucide-react";
 import { useArchive } from "@/lib/archive-context";
+import { folderEntries, folderGlyph, recordBadge } from "@/lib/archive-nav";
 import { cn } from "@/lib/utils";
-import type { ArchiveFolder, ArchiveFolderSlug } from "@/data/archive";
-
-const FOLDER_GLYPH: Record<string, string> = {
-  wiring: "◇",
-  builds: "◈",
-  ai_agents: "⬡",
-  finance: "◎",
-  academics: "▤",
-  writings: "✎",
-  baseball: "◉",
-  faith_roots: "✦",
-  hobbies: "⬢",
-  photography: "▣",
-  references: "⇱",
-  contact_info: "☍",
-};
+import type { ArchiveFolder } from "@/data/archive";
 
 /** Deterministic per-folder "sector integrity" (62–96%) — pure lore. */
 function integrityFor(slug: string): number {
@@ -29,38 +15,17 @@ function integrityFor(slug: string): number {
 }
 
 export default function FileExplorer() {
-  const { archive, activeSlug, openFile, openContact } = useArchive();
+  const { activeFolderSlug, openFolder, openContact } = useArchive();
 
-  const filesByFolder = useMemo(() => {
-    const map: Record<string, typeof archive.files> = {};
-    for (const folder of archive.folders) {
-      map[folder.slug] = archive.files.filter((f) => f.folder === folder.slug);
-    }
-    return map;
-  }, [archive]);
-
-  const activeFolderSlug = useMemo(() => {
-    if (!activeSlug) return null;
-    return archive.files.find((f) => f.slug === activeSlug)?.folder ?? null;
-  }, [activeSlug, archive.files]);
+  const entries = folderEntries();
 
   // Mobile-only: surface the contact shard first so visitors who just want
   // Samuel's contact info see it without swiping. Desktop keeps source order.
-  const orderedFolders = useMemo(() => {
-    const contact = archive.folders.filter((f) => f.slug === "contact_info");
-    const rest = archive.folders.filter((f) => f.slug !== "contact_info");
+  const orderedEntries = useMemo(() => {
+    const contact = entries.filter((e) => e.folder.slug === "contact_info");
+    const rest = entries.filter((e) => e.folder.slug !== "contact_info");
     return [...contact, ...rest];
-  }, [archive.folders]);
-
-  // Every folder holds exactly one overview file — tapping the shard opens
-  // it directly, no expand-then-select step.
-  const openFolder = useCallback(
-    (slug: ArchiveFolderSlug) => {
-      const first = filesByFolder[slug]?.[0];
-      if (first) openFile(first.slug);
-    },
-    [filesByFolder, openFile],
-  );
+  }, [entries]);
 
   // One-time nudge: scroll the strip out and back after load so it's obvious
   // the shards slide. Skipped for reduced-motion users.
@@ -79,11 +44,11 @@ export default function FileExplorer() {
 
   return (
     <nav aria-label="Archive" className="px-4 pb-4 pt-3.5">
-      <StripHeader folderCount={archive.folders.length} />
+      <StripHeader folderCount={entries.length} />
       <div className="relative -mx-4">
         <div ref={stripRef} className="scroll-strip flex snap-x snap-proximity gap-2.5 overflow-x-auto px-4 pb-1">
-          {orderedFolders.map((folder) => {
-            const fileCount = filesByFolder[folder.slug]?.length ?? 0;
+          {orderedEntries.map(({ folder, files }) => {
+            const fileCount = files.length;
             const isActive = folder.slug === activeFolderSlug;
             if (folder.slug === "contact_info") {
               return <ContactShard key={folder.slug} onOpen={openContact} />;
@@ -166,7 +131,7 @@ function ShardCardBody({
         )}
         aria-hidden
       >
-        {FOLDER_GLYPH[folder.slug] ?? "◆"}
+        {folderGlyph(folder.slug)}
       </span>
       <span className="min-w-0">
         <span
@@ -195,9 +160,18 @@ function ShardCardBody({
           )}
         </span>
       </span>
-      <span className="font-mono text-[10px] tabular-nums text-muted">
-        {isLinks ? "→" : String(fileCount).padStart(2, "0")}
-      </span>
+      {/* Multi-file sectors advertise it — a bare "02" reads as noise on a phone. */}
+      {isLinks ? (
+        <span className="font-mono text-[10px] tabular-nums text-muted">→</span>
+      ) : fileCount > 1 ? (
+        <span className="whitespace-nowrap border border-signal/30 bg-signal/5 px-1.5 py-0.5 font-mono text-[8px] tabular-nums tracking-[0.16em] text-signal">
+          {recordBadge(fileCount)} RECORDS
+        </span>
+      ) : (
+        <span className="font-mono text-[10px] tabular-nums text-muted">
+          {recordBadge(fileCount)}
+        </span>
+      )}
     </span>
   );
 }

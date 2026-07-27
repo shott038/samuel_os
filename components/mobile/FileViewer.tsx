@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { useArchive } from "@/lib/archive-context";
-import { ARCHIVE, getFile, type ArchiveSection } from "@/data/archive";
+import { getFile, type ArchiveSection } from "@/data/archive";
+import { fileLabel, recordBadge, siblingsOf } from "@/lib/archive-nav";
 import { cn } from "@/lib/utils";
 
 type OpenImage = (img: { src: string; alt: string; filename?: string; caption?: string }) => void;
@@ -251,8 +252,8 @@ function SectionBlock({ section, openImage }: { section: ArchiveSection; openIma
 export default function FileViewer() {
   const { activeSlug, closeFile, openFile } = useArchive();
   const file = activeSlug ? getFile(activeSlug) : null;
-  // Folders can hold more than one file; the rail only opens the first.
-  const siblings = file ? ARCHIVE.files.filter((f) => f.folder === file.folder) : [];
+  // A folder holds an overview plus any number of siblings — the strip lists them.
+  const siblings = siblingsOf(activeSlug);
 
   const [lightbox, setLightbox] = useState<{
     src: string;
@@ -298,8 +299,12 @@ export default function FileViewer() {
             aria-hidden
           />
 
+          {/*
+            Keyed on the modal itself, never on the file — switching files inside
+            a folder must swap the content pane only, not replay the open animation.
+          */}
           <motion.div
-            key={file.slug}
+            key="viewer"
             initial={{ opacity: 0, scale: 0.72, y: "18%" }}
             animate={{ opacity: 1, scale: 1, y: "0%" }}
             exit={{ opacity: 0, scale: 0.72, y: "18%" }}
@@ -328,6 +333,52 @@ export default function FileViewer() {
               </span>
             </div>
 
+            {/*
+              Segmented file strip — pinned under the header and OUTSIDE the
+              scroll region so it stays reachable while reading a long record.
+            */}
+            {siblings.length > 1 && (
+              <div className="shrink-0 border-b border-border bg-bg-deep">
+                <div className="flex items-center gap-2 px-4 pb-1 pt-2">
+                  <span className="font-mono text-[8.5px] uppercase tracking-[0.2em] text-muted/70">
+                    /{file.folder}
+                  </span>
+                  <span className="font-mono text-[8.5px] tabular-nums tracking-[0.16em] text-signal/70">
+                    {recordBadge(siblings.length)} RECORDS
+                  </span>
+                </div>
+                <div className="scroll-strip flex snap-x snap-proximity gap-2 overflow-x-auto px-4 pb-2">
+                  {siblings.map((s) => {
+                    const isActive = s.slug === file.slug;
+                    return (
+                      <button
+                        key={s.slug}
+                        type="button"
+                        aria-current={isActive ? "true" : undefined}
+                        onClick={() => openFile(s.slug)}
+                        className={cn(
+                          "flex min-h-[44px] shrink-0 snap-start flex-col justify-center rounded-sm border px-3 py-1.5 text-left transition-colors",
+                          "active:scale-[0.97]",
+                          isActive
+                            ? "border-signal/60 bg-signal/10 text-signal"
+                            : "border-border text-muted",
+                        )}
+                      >
+                        <span className="font-mono text-[12px] tracking-[0.08em]">
+                          {fileLabel(s)}
+                        </span>
+                        {s.badge && (
+                          <span className="mt-0.5 font-mono text-[7.5px] uppercase tracking-[0.16em] opacity-70">
+                            {s.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <article className="viewer-scanline scroll-system flex-1 overflow-y-auto">
               <motion.div
                 key={file.slug + "-content"}
@@ -347,25 +398,6 @@ export default function FileViewer() {
                     {file.title}
                   </h1>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{file.description}</p>
-                  {siblings.length > 1 && (
-                    <div className="mt-4 flex flex-wrap items-center gap-3">
-                      {siblings.map((s) => (
-                        <button
-                          key={s.slug}
-                          type="button"
-                          onClick={() => openFile(s.slug)}
-                          className={cn(
-                            "rounded-sm border px-3 py-1 font-mono text-sm transition-colors",
-                            s.slug === file.slug
-                              ? "border-signal/60 bg-signal/10 text-signal"
-                              : "border-border text-muted",
-                          )}
-                        >
-                          {s.filename}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </header>
 
                 <div className="mt-6 border-t border-border pt-2">

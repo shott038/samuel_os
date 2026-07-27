@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { useArchive } from "@/lib/archive-context";
-import { ARCHIVE, getFile, type ArchiveSection } from "@/data/archive";
+import { getFile, getFolder, type ArchiveFile, type ArchiveSection } from "@/data/archive";
+import { fileLabel, folderGlyph, recordBadge, siblingsOf } from "@/lib/archive-nav";
 import { cn } from "@/lib/utils";
 
 type OpenImage = (img: { src: string; alt: string; filename?: string; caption?: string }) => void;
@@ -269,12 +270,96 @@ function SectionBlock({ section, openImage }: { section: ArchiveSection; openIma
   return null;
 }
 
+/**
+ * Persistent left rail inside the modal — the folder's contents. Tray, not
+ * tabs: folders keep growing and tabs stop working past a handful of files.
+ */
+function FileTray({
+  folderSlug,
+  files,
+  activeSlug,
+  openFile,
+}: {
+  folderSlug: string;
+  files: readonly ArchiveFile[];
+  activeSlug: string;
+  openFile: (slug: string) => void;
+}) {
+  const folder = getFolder(folderSlug);
+  if (!folder) return null;
+
+  return (
+    <aside
+      aria-label={`${folder.displayName} contents`}
+      className="flex w-[200px] shrink-0 flex-col border-r border-border bg-bg-deep"
+    >
+      <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
+        <span
+          className="grid size-[26px] shrink-0 place-items-center border border-signal/25 bg-signal/5 text-[12px] text-signal"
+          aria-hidden
+        >
+          {folderGlyph(folder.slug)}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate font-tech text-[13px] font-semibold tracking-wide text-text">
+            {folder.displayName}
+          </span>
+          <span className="block font-mono text-[8.5px] tracking-[0.18em] text-muted">
+            {recordBadge(files.length)} {files.length === 1 ? "RECORD" : "RECORDS"}
+          </span>
+        </span>
+      </div>
+
+      <div className="scroll-system flex-1 overflow-y-auto px-2 py-2">
+        {files.map((f) => {
+          const isActive = f.slug === activeSlug;
+          return (
+            <button
+              key={f.slug}
+              type="button"
+              aria-current={isActive ? "true" : undefined}
+              onClick={() => openFile(f.slug)}
+              className={cn(
+                "mb-0.5 flex w-full items-start gap-2 border-l-2 px-2 py-2 text-left transition-colors",
+                "focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60",
+                isActive
+                  ? "border-signal bg-signal/10 text-signal"
+                  : "border-transparent text-muted hover:border-signal/30 hover:bg-panel hover:text-text",
+              )}
+            >
+              <span className="shrink-0 pt-px font-mono text-[9px] opacity-60" aria-hidden>
+                {isActive ? "▸" : "·"}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-mono text-[11px] tracking-[0.08em]">
+                  {fileLabel(f)}
+                </span>
+                <span className="mt-0.5 block truncate font-mono text-[8.5px] text-muted/70">
+                  {f.filename}
+                </span>
+                {f.badge && (
+                  <span className="mt-1 inline-block border border-signal/25 px-1 font-mono text-[7.5px] uppercase tracking-[0.16em] text-signal/70">
+                    {f.badge}
+                  </span>
+                )}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <p className="border-t border-border px-4 py-3 font-mono text-[10px] leading-relaxed text-muted/80">
+        {folder.description}
+      </p>
+    </aside>
+  );
+}
+
 export default function FileViewer() {
   const { activeSlug, closeFile, submitPrompt, openFile } = useArchive();
   const file = activeSlug ? getFile(activeSlug) : null;
-  // Folders can hold more than one file; the rail only opens the first, so the
-  // viewer exposes its siblings.
-  const siblings = file ? ARCHIVE.files.filter((f) => f.folder === file.folder) : [];
+  // A folder holds an overview plus any number of siblings — the tray lists them.
+  const siblings = siblingsOf(activeSlug);
 
   const [lightbox, setLightbox] = useState<{
     src: string;
@@ -320,8 +405,12 @@ export default function FileViewer() {
             aria-hidden
           />
 
+          {/*
+            Keyed on the modal itself, never on the file — switching files inside
+            a folder must swap the content pane only, not replay the open animation.
+          */}
           <motion.div
-            key={file.slug}
+            key="viewer"
             initial={{ opacity: 0, scale: 0.72, y: "18%" }}
             animate={{ opacity: 1, scale: 1, y: "0%" }}
             exit={{ opacity: 0, scale: 0.72, y: "18%" }}
@@ -350,86 +439,75 @@ export default function FileViewer() {
               </span>
             </div>
 
-            <article className="viewer-scanline scroll-system flex-1 overflow-y-auto">
-              <motion.div
-                key={file.slug + "-content"}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.18, ease: "easeOut", delay: 0.06 }}
-                className="relative z-10 px-8 py-8"
-              >
-                <header
-                  className="pb-5"
-                  style={{ boxShadow: "0 1px 0 rgba(96,165,250,0.15)" }}
+            <div className="flex min-h-0 flex-1">
+              {siblings.length > 1 && (
+                <FileTray
+                  folderSlug={file.folder}
+                  files={siblings}
+                  activeSlug={file.slug}
+                  openFile={openFile}
+                />
+              )}
+
+              <article className="viewer-scanline scroll-system min-w-0 flex-1 overflow-y-auto">
+                <motion.div
+                  key={file.slug + "-content"}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.18, ease: "easeOut", delay: 0.06 }}
+                  className="relative z-10 px-8 py-8"
                 >
-                  <h1
-                    id="file-viewer-title"
-                    className="text-2xl font-semibold tracking-tight text-text"
+                  <header
+                    className="pb-5"
+                    style={{ boxShadow: "0 1px 0 rgba(96,165,250,0.15)" }}
                   >
-                    {file.title}
-                  </h1>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{file.description}</p>
-                  {siblings.length > 1 && (
-                    <div className="mt-4 flex flex-wrap items-center gap-3">
-                      <span className="font-mono text-xs uppercase tracking-wider text-muted/70">
-                        SECTOR_FILES
-                      </span>
-                      {siblings.map((s) => (
-                        <button
-                          key={s.slug}
-                          type="button"
-                          onClick={() => openFile(s.slug)}
-                          className={cn(
-                            "rounded-sm border px-3 py-1 font-mono text-sm transition-colors",
-                            s.slug === file.slug
-                              ? "border-signal/60 bg-signal/10 text-signal"
-                              : "border-border text-muted hover:border-signal/40 hover:text-text",
-                          )}
-                        >
-                          {s.filename}
-                        </button>
-                      ))}
-                    </div>
+                    <h1
+                      id="file-viewer-title"
+                      className="text-2xl font-semibold tracking-tight text-text"
+                    >
+                      {file.title}
+                    </h1>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">{file.description}</p>
+                  </header>
+
+                  <div className="mt-6 border-t border-border pt-2">
+                    {file.sections.map((section, i) => (
+                      <SectionBlock key={`${section.kind}-${i}`} section={section} openImage={openImage} />
+                    ))}
+                  </div>
+
+                  {file.suggestedPrompts && file.suggestedPrompts.length > 0 && (
+                    <footer className="mt-10 border-t border-border pt-5">
+                      <div className="mb-3 font-mono text-xs uppercase tracking-wider text-muted">
+                        SUGGESTED_QUERIES
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {file.suggestedPrompts.map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => {
+                              submitPrompt(p);
+                              closeFile();
+                            }}
+                            className={cn(
+                              "rounded-sm border border-border bg-bg-elev px-3 py-1.5 text-left",
+                              "font-mono text-xs text-muted transition-colors",
+                              "motion-reduce:transition-none",
+                              "hover:border-signal/40 hover:text-signal",
+                              "focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60",
+                              "flicker-on-hover",
+                            )}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                    </footer>
                   )}
-                </header>
-
-                <div className="mt-6 border-t border-border pt-2">
-                  {file.sections.map((section, i) => (
-                    <SectionBlock key={`${section.kind}-${i}`} section={section} openImage={openImage} />
-                  ))}
-                </div>
-
-                {file.suggestedPrompts && file.suggestedPrompts.length > 0 && (
-                  <footer className="mt-10 border-t border-border pt-5">
-                    <div className="mb-3 font-mono text-xs uppercase tracking-wider text-muted">
-                      SUGGESTED_QUERIES
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {file.suggestedPrompts.map((p) => (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => {
-                            submitPrompt(p);
-                            closeFile();
-                          }}
-                          className={cn(
-                            "rounded-sm border border-border bg-bg-elev px-3 py-1.5 text-left",
-                            "font-mono text-xs text-muted transition-colors",
-                            "motion-reduce:transition-none",
-                            "hover:border-signal/40 hover:text-signal",
-                            "focus:outline-none focus-visible:ring-1 focus-visible:ring-signal/60",
-                            "flicker-on-hover",
-                          )}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                    </div>
-                  </footer>
-                )}
-              </motion.div>
-            </article>
+                </motion.div>
+              </article>
+            </div>
           </motion.div>
 
           <AnimatePresence>

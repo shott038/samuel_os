@@ -1,5 +1,11 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import {
+  convertToModelMessages,
+  streamText,
+  type StreamTextTransform,
+  type ToolSet,
+  type UIMessage,
+} from "ai";
 import { ARCHIVE, getFile } from "@/data/archive";
 import { buildSystemPrompt } from "@/lib/system-prompt";
 
@@ -40,6 +46,32 @@ function rateLimit(ip: string): boolean {
   }
   return true;
 }
+
+// Samuel never uses em-dashes and the model still slips them in, so scrub them
+// from the stream. Trailing whitespace/dashes are held back a chunk so a dash
+// split across deltas still collapses cleanly to ", ".
+const scrubEmDashes: StreamTextTransform<ToolSet> = () => {
+  let carry = "";
+  let lastId = "";
+  const clean = (t: string) => t.replace(/\s*—\s*/g, ", ");
+  return new TransformStream({
+    transform(chunk, controller) {
+      if (chunk.type === "text-delta") {
+        lastId = chunk.id;
+        const text = carry + chunk.text;
+        carry = text.match(/[\s—]*$/)?.[0] ?? "";
+        const body = clean(text.slice(0, text.length - carry.length));
+        if (body) controller.enqueue({ ...chunk, text: body });
+        return;
+      }
+      if (carry) {
+        controller.enqueue({ type: "text-delta", id: lastId, text: clean(carry) });
+        carry = "";
+      }
+      controller.enqueue(chunk);
+    },
+  });
+};
 
 interface ChatRequestBody {
   messages: UIMessage[];
@@ -102,6 +134,7 @@ export async function POST(req: Request) {
     system,
     messages: await convertToModelMessages(messages),
     maxOutputTokens: MAX_OUTPUT_TOKENS,
+    experimental_transform: scrubEmDashes,
   });
 
   return result.toUIMessageStreamResponse();
